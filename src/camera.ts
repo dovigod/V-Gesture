@@ -135,6 +135,18 @@ export class Camera {
     return camera;
   }
 
+  drawTips(tip: any, color: string) {
+    if (!tip) {
+      return;
+    }
+
+    this.ctx.fillStyle = color;
+    this.ctx.beginPath();
+    this.ctx.arc(tip.x, tip.y, 30, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.closePath()
+
+  }
   drawCtx() {
     this.ctx.drawImage(
       this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
@@ -259,3 +271,5 @@ export class Camera {
     ctxt.scatterGLHasInitialized = true;
   }
 }
+
+
