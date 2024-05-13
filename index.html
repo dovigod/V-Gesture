@@ -39,6 +39,9 @@ limitations under the License.
       padding: 0;
       overflow: hidden;
     }
+    #pin{
+      z-index: 999;
+    }
     #stats {
 
     }
@@ -55,6 +58,11 @@ limitations under the License.
     #scatter-gl-container-left, #scatter-gl-container-right {
       position: relative;
       float: left;
+    }
+    .btn{
+      padding: 30px;
+      background-color: green;
+      position: absolute;
     }
     #btn-1{
       padding: 30px;
@@ -81,9 +89,18 @@ limitations under the License.
     <div class="container">
 
       <div id="pin" style="border-radius: 50%; background-color: yellow; width: 30px; height: 30px; position: absolute;"></div>
-      <button id="btn-1" data-pos-x="400" data-pos-y="400">Click Me!!!</button>
-      <button id="btn-2" data-pos-x="400" data-pos-y="400">Click Me!!!</button>
-      <button id="btn-3" data-pos-x="400" data-pos-y="400">Click Me!!!</button>
+      <button id="btn-1" class="btn">Click Me!!!</button>
+      <button id="btn-2" class="btn">Click Me!!!</button>
+      <button id="btn-3" class="btn">Click Me!!!</button>
+      <button id="btn-4" class="btn">Click Me!!!</button>
+      <button id="btn-5" class="btn">Click Me!!!</button>
+      <button id="btn-6" class="btn">Click Me!!!</button>
+      <button id="btn-7" class="btn">Click Me!!!</button>
+      <button id="btn-8" class="btn">Click Me!!!</button>
+      <button id="btn-9" class="btn">Click Me!!!</button>
+      <button id="btn-10" class="btn" >Click Me!!!</button>
+      <button id="btn-11" class="btn" >Click Me!!!</button>
+      <button id="btn-12" class="btn" >Click Me!!!</button>
       <div class="canvas-wrapper">
         <canvas id="output"></canvas>
         <video id="video" playsinline style="

@@ -206,58 +206,29 @@ function getGestureClickDistance(keypoint1: any, keypoint2: any) {
 
 
 function init() {
-  const b1 = document.getElementById('btn-1')
-  const b2 = document.getElementById('btn-2')
-  const b3 = document.getElementById('btn-3')
 
-  const b1Dim = b1?.getBoundingClientRect();
-  const b2Dim = b2?.getBoundingClientRect();
-  const b3Dim = b3?.getBoundingClientRect();
+  const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  window.xr_clickables = []
+  for (const i of arr) {
+    const btn = document.getElementById('btn-' + i)!;
+    const bDim = btn?.getBoundingClientRect();
+    const bTop = Math.random() * (window.innerHeight - (bDim!.height / 2));
+    const bLeft = Math.random() * (window.innerWidth - (bDim!.width / 2));
+    (btn as any).style.top = bTop + 'px';
+    (btn as any).style.left = bLeft + 'px';
+    btn.dataset.boundary = JSON.stringify({
+      top: bTop,
+      left: bLeft,
+      dx: bDim!.width,
+      dy: bDim!.height
+    })
 
+    window.xr_clickables.push(btn);
+  }
 
-  // b1Dim = b1Dim
-  const b1Top = Math.random() * (window.innerHeight - (b1Dim!.height / 2));
-  const b2Top = Math.random() * (window.innerHeight - (b2Dim!.height / 2));
-  const b3Top = Math.random() * (window.innerHeight - (b3Dim!.height / 2));
-
-  const b1Left = Math.random() * (window.innerWidth - (b1Dim!.width / 2));
-  const b2Left = Math.random() * (window.innerWidth - (b2Dim!.width / 2));
-  const b3Left = Math.random() * (window.innerWidth - (b3Dim!.width / 2));
-
-  (b1 as any).style.top = b1Top + 'px';
-  (b2 as any).style.top = b2Top + 'px';
-  (b3 as any).style.top = b3Top + 'px';
-
-  (b1 as any).style.left = b1Left + 'px';
-  (b2 as any).style.left = b2Left + 'px';
-  (b3 as any).style.left = b3Left + 'px';
-
-
-  b1!.dataset.boundary = JSON.stringify({
-    top: b1Top,
-    left: b1Left,
-    dx: b1Dim!.width,
-    dy: b1Dim!.height
-  })
-
-  b2!.dataset.boundary = JSON.stringify({
-    top: b2Top,
-    left: b2Left,
-    dx: b2Dim!.width,
-    dy: b2Dim!.height
-  })
-
-
-  b3!.dataset.boundary = JSON.stringify({
-    top: b3Top,
-    left: b3Left,
-    dx: b3Dim!.width,
-    dy: b3Dim!.height
-  })
 
   const pin = document.getElementById('pin')
 
-  window.xr_clickables = [b1, b2, b3];
 
   window.addEventListener('clickGesture', (e) => {
 
