@@ -161,10 +161,10 @@ async function renderResult() {
     endEstimateHandsStats();
   }
 
-  camera.drawCtx();
+  // camera.drawCtx();
+  camera.clearCtx()
   camera.drawTips(leftIndexTip, '#ff0000')
   camera.drawTips(leftThumbTip, '#00f0ff')
-  // camera.clearCtx()
 
   // The null check makes sure the UI is not in the middle of changing to a
   // different model. If during model change, the result is from an old model,
@@ -258,7 +258,6 @@ function init() {
 }
 
 function isInterior(point: any, boundary: any) {
-
   return point.x >= boundary.left && point.x <= (boundary.left + boundary.dx) && point.y >= boundary.top && point.y <= (boundary.top + boundary.dy)
 
 }
