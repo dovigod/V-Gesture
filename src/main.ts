@@ -218,7 +218,7 @@ function getGestureClickDistance(keypoint1: any, keypoint2: any) {
 
 async function initialize() {
 
-  const PREFIX = 'g-clickable-element-'
+  const PREFIX = 'g-clickable-element'
   const elemBoundaries: ElementBoundary[] = []
   let id = 0;
 
@@ -270,6 +270,5 @@ async function initialize() {
       const node = document.getElementById(nodeId);
       node?.dispatchEvent(new Event('click'));
     }
-
   })
 }
