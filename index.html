@@ -66,6 +66,27 @@ limitations under the License.
       position: fixed;
     }
 
+    #btn0{
+      background-color: green;
+      top: 100px;
+      left : 652px;
+    }
+    #btn1{
+      background-color: purple;
+      top: 400px;
+      left : 542px;
+    }
+    #btn2{
+      background-color: pink;
+      top: 320px;
+      left : 102px;
+    }
+    #btn3{
+      background-color: plum;
+      top: 0px;
+      left : 10px;
+    }
+
   </style>
 </head>
 <body>
@@ -75,7 +96,17 @@ limitations under the License.
 
       <div id="pin" style="border-radius: 50%; background-color: yellow; width: 30px; height: 30px; position: absolute;"></div>
 
+
+      <div>
+        <button id="btn0" class="btn" gClickable onclick="alert('clicked!')">Click ME!!!</button>
+        <div>
+          <button id="btn1" class="btn" gClickable>Click ME!!!</button>
+        </div>
+        <button id="btn2" class="btn" gClickable>Click ME!!!</button>
+      </div>
+
       <div class="canvas-wrapper">
+        <button  class="btn" gClickable>Click ME!!!</button>
         <canvas id="output" style="z-index: 9999;"></canvas>
         <video id="video" playsinline style="
           -webkit-transform: scaleX(-1);

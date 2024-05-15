@@ -1,11 +1,11 @@
-import { Boundary, Point, Vector2D, Vector3D } from './types'
+import { Boundary, Point, Vector2D, Vector3D, ElementBoundary } from './types'
 import { getRawDistance, getCloserDistance } from './math'
-
 
 const MAXIMUM_SUPPORTED_DIMENSION = 3;
 export class KDTree {
-  data: Boundary[];
-  root: Boundary
+  id: string;
+  data: ElementBoundary[];
+  root: ElementBoundary
   left: KDTree | null = null;
   right: KDTree | null = null;
   size: number;
@@ -15,18 +15,24 @@ export class KDTree {
   m: number;
 
 
-  constructor(data: Boundary[], dimension = 2, depth = 0) {
+  constructor(data: ElementBoundary[], dimension?: number);
+  constructor(data: ElementBoundary[], dimension = 2, _depth = 0) {
 
     if (dimension > MAXIMUM_SUPPORTED_DIMENSION) {
       throw new Error('Unable to construct K-d tree. Unsupported Dimension');
     }
-    this.depth = depth;
+
+    this.data = data;
+    this.depth = _depth;
     this.dimension = dimension;
-    this.axis = depth % dimension;
-    this.data = sort(data, this.axis);
-    this.size = data.length;
+    this.axis = _depth % dimension;
+    this.data = sort(this.data, this.axis);
+    this.size = this.data.length;
     this.m = Math.floor(data.length / 2);
     this.root = this.data[this.m];
+    this.id = this.root.id;
+
+
     if (this.m > 0) {
       this.left = new KDTree(this.data.slice(0, this.m), this.depth + 1)
     }
@@ -37,24 +43,23 @@ export class KDTree {
 
   emit(pivot: Vector2D | Vector3D) {
     const closestNode = this.searchClosest(pivot)
-
     if (closestNode) {
-      if (pivot[0] >= closestNode[0] - closestNode[2] &&
-        pivot[0] <= closestNode[0] + closestNode[2] &&
-        pivot[1] >= closestNode[1] - closestNode[3] &&
-        pivot[1] <= closestNode[1] + closestNode[3]
+      if (pivot[0] >= closestNode.boundary[0] - closestNode.boundary[2] &&
+        pivot[0] <= closestNode.boundary[0] + closestNode.boundary[2] &&
+        pivot[1] >= closestNode.boundary[1] - closestNode.boundary[3] &&
+        pivot[1] <= closestNode.boundary[1] + closestNode.boundary[3]
       ) {
-        return closestNode[4]
+        return closestNode.id
       }
     }
     return null
   }
 
   searchClosest(pivot: Vector2D | Vector3D) {
-    return this._search(this, pivot) as Boundary;
+    return this._search(this, pivot) as ElementBoundary
   }
 
-  private _search(self: KDTree, pivot: Point): Boundary | null {
+  private _search(self: KDTree, pivot: Point): ElementBoundary | null {
     if (!self) {
       return null;
     }
@@ -64,7 +69,7 @@ export class KDTree {
     let nextSubTree: KDTree | null = null;
     let alterateSubTree: KDTree | null = null;
 
-    if (pivot[axis] < self.root[axis]) {
+    if (pivot[axis] < self.root.boundary[axis]) {
       nextSubTree = self.left;
       alterateSubTree = self.right
     } else {
@@ -75,18 +80,17 @@ export class KDTree {
     let closest = getCloserDistance(pivot, nextSubTree?._search(nextSubTree!, pivot)!, self.root)
 
     //search point and spliting point
-    if (getRawDistance(pivot, closest) > Math.abs(pivot[axis] - self.root[axis])) {
+    if (getRawDistance(pivot, closest.boundary) > Math.abs(pivot[axis] - self.root.boundary[axis])) {
       closest = getCloserDistance(pivot, alterateSubTree?._search(alterateSubTree!, pivot)!, closest)
     }
-    return closest as Boundary
+    return closest as ElementBoundary
   }
 }
 
-
-function sort(data: Boundary[], axis: number) {
+function sort(data: ElementBoundary[], axis: number) {
   if (axis <= MAXIMUM_SUPPORTED_DIMENSION) {
-    return data.sort((b1: Boundary, b2: Boundary) => {
-      return b1[axis] - b2[axis]
+    return data.sort((b1: ElementBoundary, b2: ElementBoundary) => {
+      return b1.boundary[axis] - b2.boundary[axis]
     });
   }
 
