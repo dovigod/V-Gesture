@@ -12,11 +12,20 @@ import { Camera } from './camera'
 import { setBackendAndEnvFlags } from './utils';
 import { ClickGestureEvent } from './ClickGestureEvent'
 import { KDTree } from './KDTree';
-import { Boundary2D } from './types';
+import { Boundary2D, ElementBoundary } from './types';
+import { traverse } from './dom/traverse'
+import fastdomPromiseExtension from 'fastdom/extensions/fastdom-promised'
+import Fastdom from 'fastdom';
 
+
+const debug = console.log.bind(console, '[V-Gesture]');
+const fastdom = Fastdom.extend(fastdomPromiseExtension);
 declare global {
   interface Window {
     xr_clickables: any
+  }
+  interface NamedNodeMap {
+    gClickable?: string
   }
 }
 let camera: Camera;
@@ -47,8 +56,7 @@ async function createDetector() {
 
 async function app() {
 
-  init()
-
+  initialize()
   camera = await Camera.setupCamera(STATE.camera);
 
   await setBackendAndEnvFlags(STATE.flags, STATE.backend);
@@ -56,10 +64,6 @@ async function app() {
   detector = await createDetector();
 
   renderPrediction();
-
-
-  Testing()
-
 };
 
 app();
@@ -210,133 +214,62 @@ function getGestureClickDistance(keypoint1: any, keypoint2: any) {
 
 
 
-function init() {
 
-  const CNT = 1000
-  const arr = new Array(CNT).fill(0).map((_, idx) => idx)
 
-  const d: Boundary2D[] = []
-  window.xr_clickables = []
-  for (const i of arr) {
+async function initialize() {
 
-    const btn = document.createElement('div')
-    btn.classList.add('btn')
-    btn.id = `btn-${i}`
-    btn.innerHTML = 'Click me!!!'
-    document.body.appendChild(btn);
-    const bDim = btn?.getBoundingClientRect();
-    const bTop = Math.random() * (window.innerHeight - (bDim!.height / 2));
-    const bLeft = Math.random() * (window.innerWidth - (bDim!.width / 2));
-    (btn as any).style.top = bTop + 'px';
-    (btn as any).style.left = bLeft + 'px';
-    btn.dataset.boundary = JSON.stringify({
-      top: bTop,
-      left: bLeft,
-      dx: bDim!.width,
-      dy: bDim!.height,
+  const PREFIX = 'g-clickable-element-'
+  const elemBoundaries: ElementBoundary[] = []
+  let id = 0;
+
+  await fastdom.mutate(() => {
+    // traverse sub Dom tree root of body node, and find all elems with gClickable specified elements
+    // then create kdtree to handle event target domain
+    traverse(document.body, (elem) => {
+      if ((elem as HTMLElement).hasAttribute('gClickable')) {
+        const clickableElem = elem as HTMLElement
+        const { top, left, width, height } = clickableElem.getBoundingClientRect();
+        let elemId = clickableElem.id;
+
+        if (!elemId) {
+          elemId = `${PREFIX}-${id}`
+          id++;
+        }
+
+        clickableElem.id = elemId;
+
+        const x = left + width / 2;
+        const y = top + height / 2;
+        const dx = width / 2;
+        const dy = height / 2;
+        const boundary = [x, y, dx, dy] as Boundary2D;
+        const ElementBoundary = {
+          id: elemId,
+          dimension: boundary.length / 2,
+          boundary
+        }
+
+        elemBoundaries.push(ElementBoundary)
+      }
     })
 
+    kdTree = new KDTree(elemBoundaries);
+  })
 
-    d.push([bLeft + (bDim!.width / 2), bTop + (bDim!.height / 2), (bDim!.width / 2), (bDim!.height / 2), btn.id])
-
-    kdTree = new KDTree(d);
-
-    window.xr_clickables.push(btn);
-  }
 
 
   const pin = document.getElementById('pin')
 
-  window.clicked = 0;
 
-  window.list = []
 
   window.addEventListener('clickGesture', (e: any) => {
-
-
-
-    // pin!.style.top = (e as any).triggerPoint.y + 'px'
-    // pin!.style.left = (e as any).triggerPoint.x + 'px'
-    // var startTime = performance.now()
-
-
-    // using kd tree
-
+    pin!.style.top = (e as any).triggerPoint.y + 'px'
+    pin!.style.left = (e as any).triggerPoint.x + 'px'
     const nodeId = kdTree.emit([e.triggerPoint.x, e.triggerPoint.y])
     if (nodeId) {
       const node = document.getElementById(nodeId);
-      if (node) {
-        if (!node.flag) {
-          window.clicked++
-        } else {
-          return
-        }
-        node.flag = true
-        node.innerHTML = 'Clicked!!!!'
-        node.style.transition = 'all 0.3s ease';
-        node.style.backgroundColor = '#bb86fc'
-      }
+      node?.dispatchEvent(new Event('click'));
     }
-
-
-    // using array
-    // for (let i = 0; i < window.xr_clickables.length; i++) {
-    //   if (!window.xr_clickables[i].dataset.boundary) {
-    //     continue;
-    //   }
-    //   const boundary = JSON.parse(window.xr_clickables[i].dataset.boundary)
-
-    //   if (isInterior((e as any).triggerPoint, boundary)) {
-
-
-    //     const target = window.xr_clickables[i];
-    //     if (!target.flag) {
-    //       window.clicked++
-    //     } else {
-    //       continue;
-    //     }
-    //     target.flag = true
-    //     target.innerHTML = 'Clicked!!!!'
-    //     target.style.transition = 'all 0.3s ease';
-    //     target.style.backgroundColor = '#bb86fc'
-    //     break
-    //   }
-    // }
-
-    // var endTime = performance.now()
-
-    // console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
 
   })
-}
-
-function isInterior(point: any, boundary: any) {
-  return point.x >= boundary.left && point.x <= (boundary.left + boundary.dx) && point.y >= boundary.top && point.y <= (boundary.top + boundary.dy)
-
-}
-
-function Testing() {
-  const events: any = new Array(100).fill(0).map((_) => new Array(100).fill(0))
-
-  for (let i = 0; i < 100; i++) {
-    for (let j = 0; j < 100; j++) {
-      events[i][j] = new ClickGestureEvent('clickGesture', {
-        indexTip: { x: i * 12, y: j * 12 },
-        thumbTip: { x: i * 12, y: j * 12 },
-      })
-    }
-  }
-
-
-  var startTime = performance.now()
-
-  for (let i = 0; i < 100; i++) {
-    for (let j = 0; j < 100; j++) {
-      dispatchEvent(events[i][j])
-    }
-  }
-
-  var endTime = performance.now()
-
-  console.log(`10000 execution of clickGesture with k-d tree took ${endTime - startTime} milliseconds`)
 }

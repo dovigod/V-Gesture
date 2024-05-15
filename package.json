@@ -1,5 +1,5 @@
 {
-  "name": "xr-touch",
+  "name": "v-gesture",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -21,6 +21,7 @@
     "@tensorflow/tfjs-converter": "^4.19.0",
     "@tensorflow/tfjs-core": "^4.19.0",
     "add": "^2.0.6",
+    "fastdom": "^1.0.12",
     "scatter-gl": "^0.0.13",
     "three": "^0.164.1"
   },
