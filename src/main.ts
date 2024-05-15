@@ -57,6 +57,9 @@ async function app() {
 
   renderPrediction();
 
+
+  Testing()
+
 };
 
 app();
@@ -209,7 +212,7 @@ function getGestureClickDistance(keypoint1: any, keypoint2: any) {
 
 function init() {
 
-  const CNT = 10
+  const CNT = 1000
   const arr = new Array(CNT).fill(0).map((_, idx) => idx)
 
   const d: Boundary2D[] = []
@@ -244,22 +247,31 @@ function init() {
 
   const pin = document.getElementById('pin')
 
+  window.clicked = 0;
+
+  window.list = []
 
   window.addEventListener('clickGesture', (e: any) => {
 
 
 
-    pin!.style.top = (e as any).triggerPoint.y + 'px'
-    pin!.style.left = (e as any).triggerPoint.x + 'px'
-    var startTime = performance.now()
+    // pin!.style.top = (e as any).triggerPoint.y + 'px'
+    // pin!.style.left = (e as any).triggerPoint.x + 'px'
+    // var startTime = performance.now()
 
 
+    // using kd tree
 
     const nodeId = kdTree.emit([e.triggerPoint.x, e.triggerPoint.y])
-
     if (nodeId) {
-      const node = document.getElementById(String(nodeId));
+      const node = document.getElementById(nodeId);
       if (node) {
+        if (!node.flag) {
+          window.clicked++
+        } else {
+          return
+        }
+        node.flag = true
         node.innerHTML = 'Clicked!!!!'
         node.style.transition = 'all 0.3s ease';
         node.style.backgroundColor = '#bb86fc'
@@ -267,7 +279,7 @@ function init() {
     }
 
 
-
+    // using array
     // for (let i = 0; i < window.xr_clickables.length; i++) {
     //   if (!window.xr_clickables[i].dataset.boundary) {
     //     continue;
@@ -276,10 +288,14 @@ function init() {
 
     //   if (isInterior((e as any).triggerPoint, boundary)) {
 
-    //     console.log('hit')
 
     //     const target = window.xr_clickables[i];
-
+    //     if (!target.flag) {
+    //       window.clicked++
+    //     } else {
+    //       continue;
+    //     }
+    //     target.flag = true
     //     target.innerHTML = 'Clicked!!!!'
     //     target.style.transition = 'all 0.3s ease';
     //     target.style.backgroundColor = '#bb86fc'
@@ -287,9 +303,9 @@ function init() {
     //   }
     // }
 
-    var endTime = performance.now()
+    // var endTime = performance.now()
 
-    console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
+    // console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
 
   })
 }
@@ -297,4 +313,30 @@ function init() {
 function isInterior(point: any, boundary: any) {
   return point.x >= boundary.left && point.x <= (boundary.left + boundary.dx) && point.y >= boundary.top && point.y <= (boundary.top + boundary.dy)
 
+}
+
+function Testing() {
+  const events: any = new Array(100).fill(0).map((_) => new Array(100).fill(0))
+
+  for (let i = 0; i < 100; i++) {
+    for (let j = 0; j < 100; j++) {
+      events[i][j] = new ClickGestureEvent('clickGesture', {
+        indexTip: { x: i * 12, y: j * 12 },
+        thumbTip: { x: i * 12, y: j * 12 },
+      })
+    }
+  }
+
+
+  var startTime = performance.now()
+
+  for (let i = 0; i < 100; i++) {
+    for (let j = 0; j < 100; j++) {
+      dispatchEvent(events[i][j])
+    }
+  }
+
+  var endTime = performance.now()
+
+  console.log(`10000 execution of clickGesture with k-d tree took ${endTime - startTime} milliseconds`)
 }
