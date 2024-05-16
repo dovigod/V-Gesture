@@ -1,4 +1,4 @@
-import type { Boundary, ElementBoundary, Point } from '../types'
+import type { Boundary, ElementBoundary, Point } from '../../types'
 
 export function getRawDistance(p1: Point | Boundary, p2: Point | Boundary) {
   return Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2);
