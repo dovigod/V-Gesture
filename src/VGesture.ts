@@ -33,7 +33,7 @@ interface VGestureOption {
 export class VGesture {
 
   public static gestures: Map<string, any>;
-  private elementCollection!: KDTree
+  private gestureTargetCollection!: KDTree
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
 
@@ -77,7 +77,7 @@ export class VGesture {
     }
   }
 
-  private async _generateElementCollection() {
+  private async _generateGestureTargetCollection() {
     const PREFIX = 'g-clickable-element'
     const elemBoundaries: ElementBoundary[] = []
     let id = 0;
@@ -113,7 +113,7 @@ export class VGesture {
         }
       })
 
-      this.elementCollection = new KDTree(elemBoundaries);
+      this.gestureTargetCollection = new KDTree(elemBoundaries);
     })
   }
   async initialize() {
@@ -124,13 +124,13 @@ export class VGesture {
     }
 
     // aggregate and prepare gClickable collection
-    await this._generateElementCollection();
+    await this._generateGestureTargetCollection();
     const pin = document.getElementById('pin')
 
     window.addEventListener('clickGesture', (e: any) => {
       pin!.style.top = (e as any).triggerPoint.y + 'px'
       pin!.style.left = (e as any).triggerPoint.x + 'px'
-      const nodeId = this.elementCollection.emit([e.triggerPoint.x, e.triggerPoint.y])
+      const nodeId = this.gestureTargetCollection.emit([e.triggerPoint.x, e.triggerPoint.y])
       if (nodeId) {
         const node = document.getElementById(nodeId);
         node?.dispatchEvent(new Event('click'));

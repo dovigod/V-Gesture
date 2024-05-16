@@ -14,6 +14,15 @@ export class KDTree {
   dimension: number;
   m: number;
 
+  // for better DX purpose
+  [Symbol.iterator]() {
+    let index = -1;
+    const data = this.data;
+    return {
+      next: () => ({ value: data[++index], done: index >= data.length })
+    };
+  };
+
 
   constructor(data: ElementBoundary[], dimension?: number);
   constructor(data: ElementBoundary[], dimension = 2, _depth = 0) {
@@ -112,4 +121,3 @@ function sort(data: ElementBoundary[], axis: number) {
 // ] as Boundary2D[]
 
 // const tree = new KDTree(nodes)
-
