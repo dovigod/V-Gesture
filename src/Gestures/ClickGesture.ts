@@ -28,7 +28,7 @@ export class ClickGesture implements AbstractGesture {
 
   }
 
-  dispatcher(event: unknown, gestureCollection: KDTree, triggerHelperElem?: HTMLDivElement) {
+  handler(event: unknown, gestureCollection: KDTree, triggerHelperElem?: HTMLDivElement) {
     const e = event as ClickGestureEvent;
 
     if (triggerHelperElem) {
@@ -61,13 +61,16 @@ export class ClickGesture implements AbstractGesture {
       const distance = getGestureClickDistance(indexTip, thumbTip);
 
       if (distance <= this.threshold) {
-        dispatchEvent(new ClickGestureEvent('clickGesture', { indexTip, thumbTip }));
+        dispatchEvent(new ClickGestureEvent(this.eventName, { indexTip, thumbTip }));
         this.timer = setTimeout(() => {
           this.timer = null
         }, this.dispatchInterval)
+
+        console.log('hit')
+        return true
       }
     }
-    return true;
+    return false;
   }
 }
 

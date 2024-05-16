@@ -3,8 +3,10 @@ import { Boundary2D, ElementBoundary, Handedness, Color } from './types';
 import { traverse } from './utils/dom/traverse';
 import Fastdom from 'fastdom';
 import fastdomPromiseExtension from 'fastdom/extensions/fastdom-promised'
-import { error } from './utils/console'
+import { error, warn } from './utils/console'
 import { HandDetector } from './HandDetector';
+import { AbstractGesturePlugin } from './Plugins/Plugin';
+import { GestureManager } from './GestureManager';
 
 
 const DEFAULT_TIPS_COLOR: Color[] = ['#EAC435', '#345995', '#03CEA4', '#FB4D3D', '#CA1551'];
@@ -27,7 +29,7 @@ interface VGestureOption {
 
 export class VGesture {
 
-  public static gestures: Map<string, any>;
+  gestureManager: GestureManager
   gestureTargetCollection!: KDTree
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
@@ -52,6 +54,7 @@ export class VGesture {
     this.helper = helper;
     this.handedness = handedness;
     this.dimension = dimension;
+    this.gestureManager = new GestureManager()
 
 
   }
@@ -65,21 +68,9 @@ export class VGesture {
 
     // aggregate and prepare gClickable collection
     await this._generateGestureTargetCollection();
-    const pin = document.getElementById('pin')
-
-    window.addEventListener('clickGesture', (e: any) => {
-      pin!.style.top = (e as any).triggerPoint.y + 'px'
-      pin!.style.left = (e as any).triggerPoint.x + 'px'
-      const nodeId = this.gestureTargetCollection.emit([e.triggerPoint.x, e.triggerPoint.y])
-      if (nodeId) {
-        const node = document.getElementById(nodeId);
-        node?.dispatchEvent(new Event('click'));
-      }
-    })
 
     // setup prepare camera and detector model
-
-    this.detector = new HandDetector();
+    this.detector = new HandDetector(this.gestureManager);
     await this.detector.initialize();
 
     this.initialized = true;
@@ -99,6 +90,21 @@ export class VGesture {
     if (!this.initialized) {
       throw new Error('Validation Error: V-Gesture not initialized')
     }
+  }
+
+  register(plugin: AbstractGesturePlugin) {
+    const gestureName = plugin.gesture.name;
+    const gestureManager = this.gestureManager;
+    if (gestureManager.has(gestureName)) {
+      warn(`${gestureName} is already registered`);
+      return;
+    }
+    plugin.register(this);
+    gestureManager.register(plugin)
+  }
+
+  unregister(gestureName: string) {
+    this.gestureManager.dispose(gestureName)
   }
 
   private async _generateGestureTargetCollection() {

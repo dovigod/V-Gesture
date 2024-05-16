@@ -4,6 +4,7 @@ import { setBackendAndEnvFlags } from "../tensorflow/backend";
 import { error } from "../utils/console";
 import { Camera } from "../Camera";
 import { ClickGestureEvent } from "../ClickGestureEvent";
+import { GestureManager } from "../GestureManager";
 
 let dispatched: any;
 let timer: any;
@@ -14,8 +15,10 @@ export class HandDetector {
   public detector: HandPoseDetector | null = null;
   public camera: Camera | null = null;
   private initialized: boolean = false;
+  public gestureManager: GestureManager
 
-  constructor() {
+  constructor(gestureManager: GestureManager) {
+    this.gestureManager = gestureManager
   }
 
   async initialize() {
@@ -98,51 +101,58 @@ export class HandDetector {
       throw (hands as { error: any }).error
     }
 
-    let leftHand: Hand;
-    let rightHand: Hand;
-    let leftIndexTip: any = null;
-    let rightIndexTip: any = null;
-    let leftThumbTip: any = null;
-    let rightThumbTip: any = null;
 
-    for (const hand of hands) {
-      if (hand.handedness === 'Left') {
-        rightHand = hand;
-      }
-      if (hand.handedness === 'Right') {
-        leftHand = hand;
-      }
-    }
+    this.gestureManager.gestures.forEach((gesture) => gesture.determinant(hands))
 
-    leftIndexTip = getIndexFingerTip(leftHand!)
-    leftThumbTip = getThumbTip(leftHand!);
-    rightIndexTip = getIndexFingerTip(rightHand!)
+    // let leftHand: Hand;
+    // let rightHand: Hand;
+    // let leftIndexTip: any = null;
+    // let rightIndexTip: any = null;
+    // let leftThumbTip: any = null;
+    // let rightThumbTip: any = null;
 
-    if (leftIndexTip && leftThumbTip) {
-      const distance = getGestureClickDistance(leftIndexTip, leftThumbTip);
+    // for (const hand of hands) {
+    //   if (hand.handedness === 'Left') {
+    //     rightHand = hand;
+    //   }
+    //   if (hand.handedness === 'Right') {
+    //     leftHand = hand;
+    //   }
+    // }
 
-      //magic
-      if (distance < 1200) {
-
-        if (timer) {
-          return;
-        }
-        if (!dispatched) {
-          window.dispatchEvent(new ClickGestureEvent('clickGesture', {
-            indexTip: leftIndexTip,
-            thumbTip: leftThumbTip,
-          }))
-          dispatched = true;
-          timer = setTimeout(() => {
-            timer = null
-          }, 500)
-        }
+    // leftIndexTip = getIndexFingerTip(leftHand!)
+    // leftThumbTip = getThumbTip(leftHand!);
+    // rightIndexTip = getIndexFingerTip(rightHand!)
 
 
-      } else {
-        dispatched = false
-      }
-    }
+    // this.gestureManager.gestures.forEach((gesture) => {
+    //   gesture.determinant(hands)
+    // })
+    // if (leftIndexTip && leftThumbTip) {
+    //   const distance = getGestureClickDistance(leftIndexTip, leftThumbTip);
+
+    //   //magic
+    //   if (distance < 1200) {
+
+    //     if (timer) {
+    //       return;
+    //     }
+    //     if (!dispatched) {
+    //       window.dispatchEvent(new ClickGestureEvent('clickGesture', {
+    //         indexTip: leftIndexTip,
+    //         thumbTip: leftThumbTip,
+    //       }))
+    //       dispatched = true;
+    //       timer = setTimeout(() => {
+    //         timer = null
+    //       }, 500)
+    //     }
+
+
+    //   } else {
+    //     dispatched = false
+    //   }
+    // }
 
 
   }

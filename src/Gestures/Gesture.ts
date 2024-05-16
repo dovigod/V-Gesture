@@ -21,6 +21,6 @@ export interface AbstractGesture {
    * handler function when %eventName% is emitted to Window object
    * Normally used for handling events or to dispatch native event as a chain
    */
-  dispatcher(event: unknown, gestureCollection: KDTree, triggerHelperElem?: HTMLElement): void;
+  handler(event: unknown, gestureCollection: KDTree, triggerHelperElem?: HTMLElement): void;
 
 }

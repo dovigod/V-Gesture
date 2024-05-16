@@ -7,7 +7,7 @@ export class ClickGesturePlugin implements AbstractGesturePlugin {
   gesture: ClickGesture;
   handlerFunc: ((event: unknown) => void) | null = null;
 
-  constructor(config: ClickGestureConfig) {
+  constructor(config?: ClickGestureConfig) {
     this.gesture = new ClickGesture(config);
   }
 
@@ -16,7 +16,7 @@ export class ClickGesturePlugin implements AbstractGesturePlugin {
       window.removeEventListener(this.gesture.eventName, this.handlerFunc)
     }
     this.handlerFunc = (e: unknown) => {
-      this.gesture.dispatcher(e, vGesture.gestureTargetCollection);
+      this.gesture.handler(e, vGesture.gestureTargetCollection);
     }
     return vGesture;
   }
