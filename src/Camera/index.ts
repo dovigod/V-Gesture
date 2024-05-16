@@ -15,9 +15,7 @@
  * =============================================================================
  */
 import * as scatter from 'scatter-gl';
-
 import * as params from './params';
-import { isMobile } from './utils';
 
 // These anchor points allow the hand pointcloud to resize according to its
 // position in the input.
@@ -78,13 +76,11 @@ export class Camera {
     }
 
     const { targetFPS } = cameraParam;
-    const $size = params.VIDEO_SIZE
+    const $size = params.VIDEO_SIZE;
     const videoConfig = {
       'audio': false,
       'video': {
         facingMode: 'user',
-        // Only setting the video to a specified size for large screen, on
-        // mobile devices accept the default size.
         width: $size.width,
         height: $size.height,
         frameRate: {

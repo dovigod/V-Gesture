@@ -1,5 +1,5 @@
-import { Boundary, Point, Vector2D, Vector3D, ElementBoundary } from './types'
-import { getRawDistance, getCloserDistance } from './math'
+import type { Point, Vector2D, Vector3D, ElementBoundary } from './types'
+import { getRawDistance, getCloserDistance } from './utils/math'
 
 const MAXIMUM_SUPPORTED_DIMENSION = 3;
 export class KDTree {

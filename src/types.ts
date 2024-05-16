@@ -23,3 +23,14 @@ export interface ElementBoundary {
 
 export type RenderedElement<T extends Node> = T
 export type HTMLValidElement = HTMLDivElement | HTMLAnchorElement | HTMLAnchorElement | HTMLAreaElement | HTMLAudioElement | HTMLBRElement | HTMLBaseElement | HTMLBodyElement | HTMLButtonElement | HTMLCanvasElement | HTMLDListElement | HTMLDetailsElement | HTMLDialogElement | HTMLFieldSetElement | HTMLFormControlsCollection | HTMLFormElement | HTMLFrameSetElementEventMap | HTMLHRElement | HTMLHeadingElement | HTMLIFrameElement | HTMLImageElement | HTMLInputElement | HTMLLIElement | HTMLLegendElement | HTMLLabelElement | HTMLLinkElement | HTMLMapElement | HTMLMediaElement | HTMLMenuElement | HTMLObjectElement | HTMLOptGroupElement | HTMLParagraphElement | HTMLPictureElement | HTMLPreElement | HTMLProgressElement | HTMLQuoteElement | HTMLSelectElement | HTMLSlotElement | HTMLSpanElement | HTMLTableCaptionElement | HTMLTableCellElement | HTMLTableColElement | HTMLTableElement | HTMLTableElement | HTMLTableRowElement | HTMLTableSectionElement | HTMLTextAreaElement | HTMLTimeElement | HTMLTitleElement | HTMLTrackElement | HTMLUListElement | HTMLVideoElement | HTMLOrSVGElement | HTMLOrSVGImageElement | Node;
+
+export enum Handedness {
+  LEFT = 'left',
+  RIGHT = 'right',
+  BOTH = 'both'
+}
+
+type RGB = `rgb(${number}, ${number}, ${number})`;
+type RGBA = `rgba(${number}, ${number}, ${number}, ${number})`;
+type HEX = `#${string}`;
+export type Color = RGB | RGBA | HEX;
