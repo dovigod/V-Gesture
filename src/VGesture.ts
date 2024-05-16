@@ -10,11 +10,7 @@ import { HandDetector } from './HandDetector';
 const DEFAULT_TIPS_COLOR: Color[] = ['#EAC435', '#345995', '#03CEA4', '#FB4D3D', '#CA1551'];
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
 
-interface ClickGestureConfig {
-  dispatchInterval?: number;
-  displayTriggerPoint?: boolean;
-  threshold?: number;
-}
+
 
 interface HelperConfig {
   indexTipColor?: Color;
@@ -26,14 +22,13 @@ interface HelperConfig {
 interface VGestureOption {
   handedness?: Handedness;
   dimension?: 2;
-  // clickGesture?: ClickGestureConfig;
   helper?: HelperConfig;
 }
 
 export class VGesture {
 
   public static gestures: Map<string, any>;
-  private gestureTargetCollection!: KDTree
+  gestureTargetCollection!: KDTree
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
 
@@ -59,6 +54,35 @@ export class VGesture {
     this.dimension = dimension;
 
 
+  }
+
+  async initialize() {
+    if (this.initialized) {
+      error('Duplicate V-Gesture initialization not allowed')
+      return;
+
+    }
+
+    // aggregate and prepare gClickable collection
+    await this._generateGestureTargetCollection();
+    const pin = document.getElementById('pin')
+
+    window.addEventListener('clickGesture', (e: any) => {
+      pin!.style.top = (e as any).triggerPoint.y + 'px'
+      pin!.style.left = (e as any).triggerPoint.x + 'px'
+      const nodeId = this.gestureTargetCollection.emit([e.triggerPoint.x, e.triggerPoint.y])
+      if (nodeId) {
+        const node = document.getElementById(nodeId);
+        node?.dispatchEvent(new Event('click'));
+      }
+    })
+
+    // setup prepare camera and detector model
+
+    this.detector = new HandDetector();
+    await this.detector.initialize();
+
+    this.initialized = true;
   }
 
   start() {
@@ -112,36 +136,8 @@ export class VGesture {
           elemBoundaries.push(ElementBoundary)
         }
       })
-
-      this.gestureTargetCollection = new KDTree(elemBoundaries);
+      const gestureTargetCollection = new KDTree(elemBoundaries);
+      this.gestureTargetCollection = new Proxy(gestureTargetCollection, { set: () => false })
     })
-  }
-  async initialize() {
-    if (this.initialized) {
-      error('Duplicate V-Gesture initialization not allowed')
-      return;
-
-    }
-
-    // aggregate and prepare gClickable collection
-    await this._generateGestureTargetCollection();
-    const pin = document.getElementById('pin')
-
-    window.addEventListener('clickGesture', (e: any) => {
-      pin!.style.top = (e as any).triggerPoint.y + 'px'
-      pin!.style.left = (e as any).triggerPoint.x + 'px'
-      const nodeId = this.gestureTargetCollection.emit([e.triggerPoint.x, e.triggerPoint.y])
-      if (nodeId) {
-        const node = document.getElementById(nodeId);
-        node?.dispatchEvent(new Event('click'));
-      }
-    })
-
-    // setup prepare camera and detector model
-
-    this.detector = new HandDetector();
-    await this.detector.initialize();
-
-    this.initialized = true;
   }
 }

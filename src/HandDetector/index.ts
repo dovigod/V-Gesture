@@ -2,7 +2,7 @@ import type { Hand, HandDetector as HandPoseDetector } from "@tensorflow-models/
 import { createDetector } from "../tensorflow/detector";
 import { setBackendAndEnvFlags } from "../tensorflow/backend";
 import { error } from "../utils/console";
-import { Camera } from "../camera";
+import { Camera } from "../Camera";
 import { ClickGestureEvent } from "../ClickGestureEvent";
 
 let dispatched: any;
@@ -20,7 +20,7 @@ export class HandDetector {
 
   async initialize() {
     if (this.initialized) {
-      error('Duplicate HandPostDetector initialization not allowed')
+      error('Duplicate HandDetector initialization not allowed')
       return null;
     }
     //traps
@@ -166,5 +166,4 @@ function getThumbTip(hand: any) {
 
 function getGestureClickDistance(keypoint1: any, keypoint2: any) {
   return Math.pow(keypoint1.x - keypoint2.x, 2) + Math.pow(keypoint1.y - keypoint2.y, 2);
-
 }
