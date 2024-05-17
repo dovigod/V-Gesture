@@ -7,9 +7,9 @@ import { error, warn } from './utils/console'
 import { HandDetector } from './HandDetector';
 import { AbstractGesturePlugin } from './Plugins/Plugin';
 import { GestureManager } from './GestureManager';
+import { CANVAS_ELEMENT_ID, DEFAULT_TIPS_COLOR, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID, WRAPPER_ELEMENT_ID } from './constant'
 
 
-const DEFAULT_TIPS_COLOR: Color[] = ['#EAC435', '#345995', '#03CEA4', '#FB4D3D', '#CA1551'];
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
 
 interface HelperConfig {
@@ -163,11 +163,11 @@ export class VGesture {
     const canvas = document.createElement('canvas');
     const leftHandContainer = document.createElement('div');
     const rightHandContainer = document.createElement('div');
-    leftHandContainer.id = 'vGesture-scatter-gl-container-left'
-    rightHandContainer.id = 'vGesture-scatter-gl-container-right';
-    video.id = 'vGesture-video';
-    canvas.id = 'vGesture-stage';
-    wrapper.id = 'vGesture-canvas-wrapper';
+    leftHandContainer.id = LEFT_HAND_CONTAINER_ELEMENT_ID
+    rightHandContainer.id = RIGHT_HAND_CONTAINER_ELEMENT_ID
+    video.id = VIDEO_ELEMENT_ID
+    canvas.id = CANVAS_ELEMENT_ID
+    wrapper.id = WRAPPER_ELEMENT_ID
     leftHandContainer.style.float = 'left'
     rightHandContainer.style.float = 'left'
     leftHandContainer.style.position = 'relative'
@@ -191,7 +191,7 @@ export class VGesture {
   }
 
   private _cleanStartedElems() {
-    const wrapper = document.getElementById('vGesture-canvas-wrapper');
+    const wrapper = document.getElementById(WRAPPER_ELEMENT_ID);
     if (wrapper) {
       wrapper.remove()
     }

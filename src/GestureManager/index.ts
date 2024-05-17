@@ -2,7 +2,7 @@ import { AbstractGesture, OperationKey } from "../Gestures/Gesture";
 import type { AbstractGesturePlugin } from "../Plugins/Plugin";
 import { warn } from "../utils/console";
 import { getOperationReciept } from '../operation'
-import { Handedness, HandVertex } from "../types";
+import { FunctionOperationReciept, Handedness, HandVertex, OperationReciept, OperationRecord, VariableOperationReciept } from "../types";
 import { getVertex } from "../operation/operations";
 import type { Hand } from "@tensorflow-models/hand-pose-detection";
 
@@ -21,8 +21,8 @@ const SUPPORTING_VERTEX = {
 export class GestureManager {
   gestures: Map<string, AbstractGesture>;
   gestureGC: Map<string, () => void>;
-  sharedOperations: Map<string, any>;
-  handsVertex: Map<'left' | 'right', Map<string, HandVertex>>;
+  sharedOperations: Map<string, OperationRecord>;
+  handsVertex: Map<Handedness, Map<string, HandVertex>>;
   version: number;
 
   constructor() {
@@ -30,8 +30,8 @@ export class GestureManager {
     this.gestureGC = new Map();
     this.sharedOperations = new Map();
     this.handsVertex = new Map();
-    this.handsVertex.set('left', new Map());
-    this.handsVertex.set('right', new Map());
+    this.handsVertex.set(Handedness.LEFT, new Map());
+    this.handsVertex.set(Handedness.RIGHT, new Map());
     this.version = 0;
   }
 
@@ -79,7 +79,7 @@ export class GestureManager {
   }
 
   updateHandVertex(handDirection: Handedness, hand: Hand) {
-    if (handDirection !== 'both') {
+    if (handDirection === 'left' || handDirection === 'right') {
 
       const handVertexMap = this.handsVertex.get(handDirection)
 
@@ -95,6 +95,9 @@ export class GestureManager {
     }
   }
 
+  /**
+   * creates operationRecords and save.
+   */
   private _registerOperation(requestingOperations: OperationKey[], usedHand: Handedness) {
 
     const sharedOperations = this.sharedOperations;
@@ -104,8 +107,7 @@ export class GestureManager {
       let operationRecord = sharedOperations.get(operationKey);
 
       if (!operationRecord) {
-
-        const operationReciept = getOperationReciept(operationKey);
+        const operationReciept: OperationReciept | null = getOperationReciept(operationKey);
         // operation not recognized. possibly human error. exit without registering
         if (!operationReciept) {
           return;
@@ -124,37 +126,38 @@ export class GestureManager {
       this.sharedOperations.set(operationKey, operationRecord);
     }
   }
-  private _operationFactory(operationReciept: any, handDirection: Handedness) {
+  private _operationFactory(operationReciept: OperationReciept, handDirection: Handedness) {
     let operation;
 
     if (operationReciept.type === 'function') {
-      const func = operationReciept.func;
-
+      const reciept = operationReciept as FunctionOperationReciept
+      const func = reciept.func;
 
       operation = () => {
-        const args = operationReciept.vars.map((arg: string) => {
+        const args = reciept.vars.map((arg: string) => {
           // if(handDirection === Handedness.BOTH){
           // }
           if (handDirection === Handedness.LEFT) {
-            return this.handsVertex.get('left')!.get(arg)
+            return this.handsVertex.get(Handedness.LEFT)!.get(arg)
           }
           if (handDirection === Handedness.RIGHT) {
-            return this.handsVertex.get('right')!.get(arg)
+            return this.handsVertex.get(Handedness.RIGHT)!.get(arg)
           }
-        })
+        }) as HandVertex[]
         return func(...args)
       }
     }
     if (operationReciept.type === 'variable') {
-      const arg = operationReciept.vars;
+      const reciept = operationReciept as VariableOperationReciept
+      const arg = reciept.vars;
       if (handDirection === Handedness.LEFT) {
-        operation = () => this.handsVertex.get('left')!.get(arg)
+        operation = () => this.handsVertex.get(Handedness.LEFT)!.get(arg)
       }
       if (handDirection === Handedness.RIGHT) {
-        operation = () => this.handsVertex.get('right')!.get(arg)
+        operation = () => this.handsVertex.get(Handedness.RIGHT)!.get(arg)
       }
     }
-    return operation;
+    return operation!;
   }
 
 

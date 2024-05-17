@@ -55,7 +55,6 @@ export class ClickGesture implements AbstractGesture {
     if (this.timer) {
       return false;
     }
-    //no hands detected
     if (hands.length === 0) {
       return false;
     }
