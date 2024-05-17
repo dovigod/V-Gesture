@@ -67,7 +67,6 @@ export class Camera {
   constructor(helper: any) {
     this.video = document.getElementById('vGesture-video')! as HTMLVideoElement;
     this.canvas = document.getElementById('vGesture-stage')! as HTMLCanvasElement;
-    console.log(this.video, this.canvas)
     this.ctx = this.canvas.getContext('2d')!;
     this.helper = helper;
     this.hitpoints = []

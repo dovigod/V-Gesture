@@ -9,9 +9,8 @@ async function init() {
   const clickGesturePlugin = new ClickGesturePlugin({
 
   })
+
   vGesture.register(clickGesturePlugin)
   vGesture.start()
-
-
 }
 init()

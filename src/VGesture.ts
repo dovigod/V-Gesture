@@ -66,38 +66,7 @@ export class VGesture {
     // aggregate and prepare gClickable collection
     await this._generateGestureTargetCollection();
 
-    // create video , canvas element to detect & draw scene
-    const wrapper = document.createElement('div');
-    const video = document.createElement('video')
-    const canvas = document.createElement('canvas');
-    const leftHandContainer = document.createElement('div');
-    const rightHandContainer = document.createElement('div');
-    leftHandContainer.id = 'vGesture-scatter-gl-container-left'
-    rightHandContainer.id = 'vGesture-scatter-gl-container-right';
-    video.id = 'vGesture-video';
-    canvas.id = 'vGesture-stage';
-    wrapper.id = 'vGesture-canvas-wrapper';
-
-    leftHandContainer.style.float = 'left'
-    rightHandContainer.style.float = 'left'
-    leftHandContainer.style.position = 'relative'
-    rightHandContainer.style.position = 'relative'
-    wrapper.style.position = 'absolute';
-    wrapper.style.top = '0px';
-    wrapper.style.left = '0px';
-    wrapper.style.zIndex = '99999';
-    video.playsInline = true;
-    video.style.visibility = 'hidden';
-    video.style.position = 'absolute';
-    video.style.transform = 'scaleX(-1)'
-    canvas.style.zIndex = '99999';
-    canvas.style.position = 'absolute';
-
-    wrapper.appendChild(leftHandContainer);
-    wrapper.appendChild(rightHandContainer)
-    wrapper.appendChild(video);
-    wrapper.appendChild(canvas);
-    document.body.appendChild(wrapper)
+    this._createStarterElems()
 
 
     // setup prepare camera and detector model
@@ -128,6 +97,7 @@ export class VGesture {
     this.detector?.pausePrediction()
     this.detector?.camera?.close();
     this.gestureManager.disposeAll();
+    this._cleanStartedElems();
     this.initialized = false;
   }
 
@@ -184,5 +154,46 @@ export class VGesture {
       const gestureTargetCollection = new KDTree(elemBoundaries);
       this.gestureTargetCollection = new Proxy(gestureTargetCollection, { set: () => false })
     })
+  }
+
+  private _createStarterElems() {
+    // create video , canvas element to detect & draw scene
+    const wrapper = document.createElement('div');
+    const video = document.createElement('video')
+    const canvas = document.createElement('canvas');
+    const leftHandContainer = document.createElement('div');
+    const rightHandContainer = document.createElement('div');
+    leftHandContainer.id = 'vGesture-scatter-gl-container-left'
+    rightHandContainer.id = 'vGesture-scatter-gl-container-right';
+    video.id = 'vGesture-video';
+    canvas.id = 'vGesture-stage';
+    wrapper.id = 'vGesture-canvas-wrapper';
+    leftHandContainer.style.float = 'left'
+    rightHandContainer.style.float = 'left'
+    leftHandContainer.style.position = 'relative'
+    rightHandContainer.style.position = 'relative'
+    wrapper.style.position = 'absolute';
+    wrapper.style.top = '0px';
+    wrapper.style.left = '0px';
+    wrapper.style.zIndex = '99999';
+    video.playsInline = true;
+    video.style.visibility = 'hidden';
+    video.style.position = 'absolute';
+    video.style.transform = 'scaleX(-1)'
+    canvas.style.zIndex = '99999';
+    canvas.style.position = 'absolute';
+
+    wrapper.appendChild(leftHandContainer);
+    wrapper.appendChild(rightHandContainer)
+    wrapper.appendChild(video);
+    wrapper.appendChild(canvas);
+    document.body.appendChild(wrapper)
+  }
+
+  private _cleanStartedElems() {
+    const wrapper = document.getElementById('vGesture-canvas-wrapper');
+    if (wrapper) {
+      wrapper.remove()
+    }
   }
 }

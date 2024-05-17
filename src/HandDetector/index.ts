@@ -64,8 +64,13 @@ export class HandDetector {
 
     const self = this;
     async function frameCb() {
+
+      const start = performance.now();
       await self.predict();
       self.predictionId = requestAnimationFrame(frameCb);
+      const end = performance.now();
+
+      // console.log(`tooked total${end - start}ms`)
     }
 
     frameCb();
@@ -111,7 +116,6 @@ export class HandDetector {
     }
 
 
-
     // update hand vertex
     for (const hand of hands) {
       const direction = hand.handedness === 'Right' ? 'left' : 'right';
@@ -122,8 +126,6 @@ export class HandDetector {
       this.camera?.drawHitPoint();
 
     }
-
-
 
     // get requested operation from gestureManager.
     // if requestedOperation is staled (controled by version), refresh 

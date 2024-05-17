@@ -9,7 +9,10 @@ import type { Hand } from "@tensorflow-models/hand-pose-detection";
 
 const SUPPORTING_VERTEX = {
   'thumb_tip': true,
-  'index_finger_tip': true
+  'index_finger_tip': true,
+  'middle_finger_tip': true,
+  'ring_finger_tip': true,
+  'pinky_finger_tip': true
 }
 /**
  * An GestureManager is used to manage connection between Gestures and others.
