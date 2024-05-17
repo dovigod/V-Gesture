@@ -1,6 +1,6 @@
 import type { Hand } from "@tensorflow-models/hand-pose-detection";
 import { KDTree } from "../KDTree";
-import { Handedness } from "../types";
+import { Color, Handedness } from "../types";
 
 export type OperationKey = `${"func::" | "var::"}${string}`
 export interface AbstractGesture {
@@ -15,9 +15,9 @@ export interface AbstractGesture {
   /**
    * 
    * determinate current user's gesture does matches this Gesture 
-   * if matches, return true, otherwise, false
+   * if matches, return any truth value, otherwise, false
    */
-  determinant(hands: Hand[], requestedOperations?: Record<OperationKey, any>): boolean;
+  determinant(hands: Hand[], requestedOperations?: Record<OperationKey, any>): any | boolean;
 
   /**
    * handler function when %eventName% is emitted to Window object
@@ -43,4 +43,8 @@ export interface AbstractGesture {
    */
   usedHand: Handedness
 
+  /**
+   * hit point color on trigger
+   */
+  triggerPointColor?: Color;
 }

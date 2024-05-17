@@ -18,6 +18,7 @@ export class ClickGesturePlugin implements AbstractGesturePlugin {
     this.handlerFunc = (e: unknown) => {
       this.gesture.handler(e, vGesture.gestureTargetCollection);
     }
+    window.addEventListener(this.gesture.eventName, this.handlerFunc)
     return vGesture;
   }
 

@@ -13,9 +13,11 @@ export class HandDetector {
   public camera: Camera | null = null;
   private initialized: boolean = false;
   public gestureManager: GestureManager
+  public helper: any;
 
-  constructor(gestureManager: GestureManager) {
+  constructor(gestureManager: GestureManager, helper: any) {
     this.gestureManager = gestureManager
+    this.helper = helper
   }
 
   async initialize() {
@@ -38,12 +40,14 @@ export class HandDetector {
     }
 
     // camera
-    const camera = new Camera();
+    const camera = new Camera(this.helper);
     this.camera = new Proxy(camera, cameraInterceptors);
-    await Camera.setupCamera({ targetFPS: 60 });
+
 
     // wasm-backend
     await setBackendAndEnvFlags({}, '');
+
+    await Camera.setupCamera({ targetFPS: 60 });
 
     //detector
     const detector = await createDetector();
@@ -98,16 +102,28 @@ export class HandDetector {
       throw (hands as { error: any }).error
     }
 
+    // for smooth vanishing
+    this.camera?.clearCtx();
+    this.camera?.drawHitPoint();
+
     if (hands.length === 0) {
       return;
     }
 
-    // update hand vertex
 
+
+    // update hand vertex
     for (const hand of hands) {
       const direction = hand.handedness === 'Right' ? 'left' : 'right';
       this.gestureManager.updateHandVertex(direction as Handedness, hand);
+      this.gestureManager.handsVertex.get(direction)?.forEach((vertex) => {
+        this.camera?.drawTips(vertex)
+      })
+      this.camera?.drawHitPoint();
+
     }
+
+
 
     // get requested operation from gestureManager.
     // if requestedOperation is staled (controled by version), refresh 
@@ -134,7 +150,10 @@ export class HandDetector {
 
       }
 
-      gesture.determinant(hands, requestedOperations)
+      const det = gesture.determinant(hands, requestedOperations)
+      if (det) {
+        this.camera?.createHitPoint(det, gesture.triggerPointColor || '#000000');
+      }
     })
   }
 

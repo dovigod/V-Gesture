@@ -30,101 +30,77 @@ limitations under the License.
 ==============================================================================-->
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0, user-scalable=no">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    #pin{
-      z-index: 999;
-    }
-    #stats {
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1.0, user-scalable=no"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      #pin {
+        z-index: 999;
+      }
+      #stats {
+      }
+      #main {
+        position: relative;
+        margin: 0;
+      }
+      #canvas-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 99999;
+      }
 
-    }
-    #main {
-      position: relative;
-      margin: 0;
-    }
-    #canvas-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 99999;
-      
-    }
-    #scatter-gl-container-left, #scatter-gl-container-right {
-      position: relative;
-      float: left;
-    }
-    .btn{
-      padding: 10px;
-      background-color: green;
-      position: fixed;
-    }
+      .btn {
+        padding: 10px;
+        background-color: green;
+        position: fixed;
+      }
 
-    #btn0{
-      background-color: green;
-      top: 100px;
-      left : 652px;
-    }
-    #btn1{
-      background-color: purple;
-      top: 400px;
-      left : 542px;
-    }
-    #btn2{
-      background-color: pink;
-      top: 320px;
-      left : 102px;
-    }
-    #btn3{
-      background-color: plum;
-      top: 0px;
-      left : 10px;
-    }
-
-  </style>
-</head>
-<body>
-  <div id="stats"></div>
-  <div id="main">
-    <div class="container">
-
-      <div id="pin" style="border-radius: 50%; background-color: yellow; width: 30px; height: 30px; position: absolute;"></div>
-
-
-      <div>
-        <button id="btn0" class="btn" gClickable onclick="alert('clicked!')">Click ME!!!</button>
+      #btn0 {
+        background-color: green;
+        top: 100px;
+        left: 652px;
+      }
+      #btn1 {
+        background-color: purple;
+        top: 400px;
+        left: 542px;
+      }
+      #btn2 {
+        background-color: pink;
+        top: 320px;
+        left: 102px;
+      }
+      #btn3 {
+        background-color: plum;
+        top: 0px;
+        left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stats"></div>
+    <div id="main">
+      <div class="container">
+        <button id="btn0" class="btn" gClickable onclick="alert('clicked!')">
+          Click ME!!!
+        </button>
         <div>
           <button id="btn1" class="btn" gClickable>Click ME!!!</button>
         </div>
         <button id="btn2" class="btn" gClickable>Click ME!!!</button>
       </div>
-
-      <div class="canvas-wrapper">
-        <button  class="btn" gClickable>Click ME!!!</button>
-        <canvas id="output" style="z-index: 9999;"></canvas>
-        <video id="video" playsinline style="
-          -webkit-transform: scaleX(-1);
-          transform: scaleX(-1);
-          visibility: hidden;
-          width: auto;
-          height: auto;
-          ">
-        </video>
-      </div>
-      <div id="scatter-gl-container-left"></div>
-      </div>
-      <div id="scatter-gl-container-right"></div>
     </div>
-  </div>
-</body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js"></script>
-<script type="module" src="/src/main.ts"></script>
-
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js"></script>
+  <script type="module" src="/src/main.ts"></script>
 </html>
