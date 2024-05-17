@@ -1,6 +1,6 @@
 import { Hand } from '@tensorflow-models/hand-pose-detection'
-import type { AbstractGesture } from './Gesture'
-import { Color } from '../types';
+import type { AbstractGesture, OperationKey } from './Gesture'
+import { Color, Handedness } from '../types';
 import { KDTree } from '../KDTree';
 import { ClickGestureEvent } from '../ClickGestureEvent'
 
@@ -9,22 +9,32 @@ export interface ClickGestureConfig {
   displayTriggerPoint?: boolean;
   triggerPointColor?: Color;
   threshold?: number;
+  usedHand?: Handedness
 }
+
+
 
 export class ClickGesture implements AbstractGesture {
   name = 'clickGesture';
   eventName = 'clickGesture';
+  usedHand: Handedness;
   dispatchInterval: number;
   displayTriggerPoint: boolean = false;
   triggerPointColor: Color;
   threshold: number;
   timer: number | null = null;
+  operationsRequest: OperationKey[] = [
+    "func::get2FingerDistance-thumbTip-indexTip",
+    "var::thumbTip",
+    "var::indexTip"
+  ];
 
   constructor(config?: ClickGestureConfig) {
     this.dispatchInterval = config?.dispatchInterval || 500;
     this.displayTriggerPoint = config?.displayTriggerPoint || false;
     this.triggerPointColor = config?.triggerPointColor || '#B388EB';
     this.threshold = config?.threshold || 1200;
+    this.usedHand = config?.usedHand || Handedness.LEFT
 
   }
 
@@ -42,7 +52,7 @@ export class ClickGesture implements AbstractGesture {
     }
   }
 
-  determinant(hands: Hand[]): boolean {
+  determinant(hands: Hand[], requestedOperations: Record<string, any>): boolean {
     //cool down
     if (this.timer) {
       return false;
@@ -52,42 +62,19 @@ export class ClickGesture implements AbstractGesture {
       return false;
     }
 
-    const hand = hands[0];
-
-    const indexTip = getIndexFingerTip(hand);
-    const thumbTip = getThumbTip(hand);
+    const distance = requestedOperations['func::getGestureClickDistance-thumbTip-indexTip']
+    const indexTip = requestedOperations['var::indexTip'];
+    const thumbTip = requestedOperations['var::thumbTip']
 
     if (indexTip && thumbTip) {
-      const distance = getGestureClickDistance(indexTip, thumbTip);
-
       if (distance <= this.threshold) {
         dispatchEvent(new ClickGestureEvent(this.eventName, { indexTip, thumbTip }));
         this.timer = setTimeout(() => {
           this.timer = null
         }, this.dispatchInterval)
-
-        console.log('hit')
         return true
       }
     }
     return false;
   }
 }
-
-function getGestureClickDistance(keypoint1: any, keypoint2: any) {
-  return Math.pow(keypoint1.x - keypoint2.x, 2) + Math.pow(keypoint1.y - keypoint2.y, 2);
-}
-function getIndexFingerTip(hand: any) {
-  if (!hand) {
-    return null;
-  }
-  return hand.keypoints.find((keypoint: any) => keypoint.name === 'index_finger_tip')
-}
-
-function getThumbTip(hand: any) {
-  if (!hand) {
-    return null;
-  }
-  return hand.keypoints.find((keypoint: any) => keypoint.name === 'thumb_tip')
-}
-
