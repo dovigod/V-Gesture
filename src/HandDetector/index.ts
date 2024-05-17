@@ -1,14 +1,11 @@
-import type { Hand, HandDetector as HandPoseDetector } from "@tensorflow-models/hand-pose-detection";
+import type { HandDetector as HandPoseDetector } from "@tensorflow-models/hand-pose-detection";
 import { createDetector } from "../tensorflow/detector";
 import { setBackendAndEnvFlags } from "../tensorflow/backend";
 import { error } from "../utils/console";
 import { Camera } from "../Camera";
-import { ClickGestureEvent } from "../ClickGestureEvent";
 import { GestureManager } from "../GestureManager";
-
-let dispatched: any;
-let timer: any;
-
+import { OperationKey } from "../Gestures/Gesture";
+import { Handedness } from "../types";
 export class HandDetector {
 
   private predictionId: number | null = null;
@@ -101,79 +98,44 @@ export class HandDetector {
       throw (hands as { error: any }).error
     }
 
+    if (hands.length === 0) {
+      return;
+    }
 
-    this.gestureManager.gestures.forEach((gesture) => gesture.determinant(hands))
+    // update hand vertex
 
-    // let leftHand: Hand;
-    // let rightHand: Hand;
-    // let leftIndexTip: any = null;
-    // let rightIndexTip: any = null;
-    // let leftThumbTip: any = null;
-    // let rightThumbTip: any = null;
+    for (const hand of hands) {
+      const direction = hand.handedness === 'Right' ? 'left' : 'right';
+      this.gestureManager.updateHandVertex(direction as Handedness, hand);
+    }
 
-    // for (const hand of hands) {
-    //   if (hand.handedness === 'Left') {
-    //     rightHand = hand;
-    //   }
-    //   if (hand.handedness === 'Right') {
-    //     leftHand = hand;
-    //   }
-    // }
+    // get requested operation from gestureManager.
+    // if requestedOperation is staled (controled by version), refresh 
+    const gestureManager = this.gestureManager;
+    gestureManager.version = (gestureManager.version + 1) % 8;
+    gestureManager.gestures.forEach((gesture) => {
+      let requestedOperations: Record<OperationKey, any> | undefined;
 
-    // leftIndexTip = getIndexFingerTip(leftHand!)
-    // leftThumbTip = getThumbTip(leftHand!);
-    // rightIndexTip = getIndexFingerTip(rightHand!)
+      if (gesture.operationsRequest && gesture.operationsRequest.length > 0) {
+        requestedOperations = {};
+        for (const key of gesture.operationsRequest) {
+          let value: any;
+          const operationReciept = gestureManager.sharedOperations.get(key)
+          if (operationReciept.version !== gestureManager.version) {
+            operationReciept.value = operationReciept.operation();
+            operationReciept.version++;
+            gestureManager.sharedOperations.set(key, operationReciept)
+            value = operationReciept.value;
+          } else {
+            value = operationReciept.value
+          }
+          requestedOperations[key] = value;
+        }
 
+      }
 
-    // this.gestureManager.gestures.forEach((gesture) => {
-    //   gesture.determinant(hands)
-    // })
-    // if (leftIndexTip && leftThumbTip) {
-    //   const distance = getGestureClickDistance(leftIndexTip, leftThumbTip);
-
-    //   //magic
-    //   if (distance < 1200) {
-
-    //     if (timer) {
-    //       return;
-    //     }
-    //     if (!dispatched) {
-    //       window.dispatchEvent(new ClickGestureEvent('clickGesture', {
-    //         indexTip: leftIndexTip,
-    //         thumbTip: leftThumbTip,
-    //       }))
-    //       dispatched = true;
-    //       timer = setTimeout(() => {
-    //         timer = null
-    //       }, 500)
-    //     }
-
-
-    //   } else {
-    //     dispatched = false
-    //   }
-    // }
-
-
+      gesture.determinant(hands, requestedOperations)
+    })
   }
 
-}
-
-function getIndexFingerTip(hand: any) {
-  if (!hand) {
-    return null;
-  }
-  return hand.keypoints.find((keypoint: any) => keypoint.name === 'index_finger_tip')
-}
-
-function getThumbTip(hand: any) {
-  if (!hand) {
-    return null;
-  }
-  return hand.keypoints.find((keypoint: any) => keypoint.name === 'thumb_tip')
-}
-
-
-function getGestureClickDistance(keypoint1: any, keypoint2: any) {
-  return Math.pow(keypoint1.x - keypoint2.x, 2) + Math.pow(keypoint1.y - keypoint2.y, 2);
 }

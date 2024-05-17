@@ -12,8 +12,6 @@ import { GestureManager } from './GestureManager';
 const DEFAULT_TIPS_COLOR: Color[] = ['#EAC435', '#345995', '#03CEA4', '#FB4D3D', '#CA1551'];
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
 
-
-
 interface HelperConfig {
   indexTipColor?: Color;
   thumbTipColor?: Color;
@@ -90,6 +88,7 @@ export class VGesture {
     if (!this.initialized) {
       throw new Error('Validation Error: V-Gesture not initialized')
     }
+    this.detector?.pausePrediction()
   }
 
   register(plugin: AbstractGesturePlugin) {
