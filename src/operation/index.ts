@@ -1,10 +1,10 @@
 import type { OperationKey } from "../Gestures/Gesture";
 import { error } from '../utils/console'
 import { operations } from './operations'
+import { FUNCTION_NOTATION, VARIABLE_NOTATION } from '../constant'
 
 
-const FUNCTION_NOTATION = 'func::';
-const VARIABLE_NOTATION = 'var::';
+
 
 export function getOperationReciept(operationKey: OperationKey) {
   const type = operationKey.startsWith(FUNCTION_NOTATION) ? 'function' : operationKey.startsWith(VARIABLE_NOTATION) ? 'variable' : 'invalid';

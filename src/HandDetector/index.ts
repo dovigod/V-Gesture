@@ -4,6 +4,8 @@ import { setBackendAndEnvFlags } from "../tensorflow/backend";
 import { error } from "../utils/console";
 import { Camera } from "../Camera";
 import { GestureManager } from "../GestureManager";
+import { OperationKey } from "../Gestures/Gesture";
+import { Handedness } from "../types";
 export class HandDetector {
 
   private predictionId: number | null = null;
@@ -96,7 +98,44 @@ export class HandDetector {
       throw (hands as { error: any }).error
     }
 
-    this.gestureManager.gestures.forEach((gesture) => gesture.determinant(hands))
+    if (hands.length === 0) {
+      return;
+    }
+
+    // update hand vertex
+
+    for (const hand of hands) {
+      const direction = hand.handedness === 'Right' ? 'left' : 'right';
+      this.gestureManager.updateHandVertex(direction as Handedness, hand);
+    }
+
+    // get requested operation from gestureManager.
+    // if requestedOperation is staled (controled by version), refresh 
+    const gestureManager = this.gestureManager;
+    gestureManager.version = (gestureManager.version + 1) % 8;
+    gestureManager.gestures.forEach((gesture) => {
+      let requestedOperations: Record<OperationKey, any> | undefined;
+
+      if (gesture.operationsRequest && gesture.operationsRequest.length > 0) {
+        requestedOperations = {};
+        for (const key of gesture.operationsRequest) {
+          let value: any;
+          const operationReciept = gestureManager.sharedOperations.get(key)
+          if (operationReciept.version !== gestureManager.version) {
+            operationReciept.value = operationReciept.operation();
+            operationReciept.version++;
+            gestureManager.sharedOperations.set(key, operationReciept)
+            value = operationReciept.value;
+          } else {
+            value = operationReciept.value
+          }
+          requestedOperations[key] = value;
+        }
+
+      }
+
+      gesture.determinant(hands, requestedOperations)
+    })
   }
 
 }

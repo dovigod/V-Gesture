@@ -62,7 +62,7 @@ export class ClickGesture implements AbstractGesture {
       return false;
     }
 
-    const distance = requestedOperations['func::getGestureClickDistance-thumbTip-indexTip']
+    const distance = requestedOperations['func::get2FingerDistance-thumbTip-indexTip']
     const indexTip = requestedOperations['var::indexTip'];
     const thumbTip = requestedOperations['var::thumbTip']
 

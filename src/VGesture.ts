@@ -88,6 +88,7 @@ export class VGesture {
     if (!this.initialized) {
       throw new Error('Validation Error: V-Gesture not initialized')
     }
+    this.detector?.pausePrediction()
   }
 
   register(plugin: AbstractGesturePlugin) {

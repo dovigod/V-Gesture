@@ -17,7 +17,7 @@ export interface AbstractGesture {
    * determinate current user's gesture does matches this Gesture 
    * if matches, return true, otherwise, false
    */
-  determinant(hands: Hand[], requestedOperations: Record<OperationKey, any>): boolean;
+  determinant(hands: Hand[], requestedOperations?: Record<OperationKey, any>): boolean;
 
   /**
    * handler function when %eventName% is emitted to Window object
