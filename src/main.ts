@@ -1,6 +1,3 @@
-console.warn = () => { }
-
-
 import { VGesture } from './VGesture'
 import { ClickGesturePlugin } from './Plugins/ClickGesturePlugin'
 async function init() {

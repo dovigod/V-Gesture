@@ -5,7 +5,7 @@ import { error } from "../utils/console";
 import { Camera } from "../Camera";
 import { GestureManager } from "../GestureManager";
 import { OperationKey } from "../Gestures/Gesture";
-import { Handedness } from "../types";
+import { Handedness, OperationRecord } from "../types";
 export class HandDetector {
 
   private predictionId: number | null = null;
@@ -64,13 +64,8 @@ export class HandDetector {
 
     const self = this;
     async function frameCb() {
-
-      const start = performance.now();
       await self.predict();
       self.predictionId = requestAnimationFrame(frameCb);
-      const end = performance.now();
-
-      // console.log(`tooked total${end - start}ms`)
     }
 
     frameCb();
@@ -118,7 +113,7 @@ export class HandDetector {
 
     // update hand vertex
     for (const hand of hands) {
-      const direction = hand.handedness === 'Right' ? 'left' : 'right';
+      const direction = hand.handedness === 'Right' ? Handedness.LEFT : Handedness.RIGHT;
       this.gestureManager.updateHandVertex(direction as Handedness, hand);
       this.gestureManager.handsVertex.get(direction)?.forEach((vertex) => {
         this.camera?.drawTips(vertex)
@@ -132,22 +127,25 @@ export class HandDetector {
     const gestureManager = this.gestureManager;
     gestureManager.version = (gestureManager.version + 1) % 8;
     gestureManager.gestures.forEach((gesture) => {
-      let requestedOperations: Record<OperationKey, any> | undefined;
+      let requestedOperations: Record<OperationKey, OperationRecord> | undefined;
 
       if (gesture.operationsRequest && gesture.operationsRequest.length > 0) {
         requestedOperations = {};
         for (const key of gesture.operationsRequest) {
           let value: any;
-          const operationReciept = gestureManager.sharedOperations.get(key)
-          if (operationReciept.version !== gestureManager.version) {
-            operationReciept.value = operationReciept.operation();
-            operationReciept.version++;
-            gestureManager.sharedOperations.set(key, operationReciept)
-            value = operationReciept.value;
-          } else {
-            value = operationReciept.value
+          const record = gestureManager.sharedOperations.get(key)
+
+          if (record) {
+            if (record.version !== gestureManager.version) {
+              record.value = record.operation();
+              record.version++;
+              gestureManager.sharedOperations.set(key, record)
+              value = record.value;
+            } else {
+              value = record.value
+            }
+            requestedOperations[key] = value;
           }
-          requestedOperations[key] = value;
         }
 
       }

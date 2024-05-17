@@ -2,6 +2,7 @@ import type { OperationKey } from "../Gestures/Gesture";
 import { error } from '../utils/console'
 import { operations } from './operations'
 import { FUNCTION_NOTATION, VARIABLE_NOTATION } from '../constant'
+import { OperationRequestType } from "../types";
 
 
 
@@ -20,7 +21,7 @@ export function getOperationReciept(operationKey: OperationKey) {
         error(`function ${functionName} is not supported`)
       }
       return {
-        type: 'function',
+        type: 'function' as OperationRequestType,
         func: operations[functionName],
         vars: args
       }
@@ -29,7 +30,7 @@ export function getOperationReciept(operationKey: OperationKey) {
       const operationPayload = operationKey.split(VARIABLE_NOTATION)[1];
 
       return {
-        type: 'variable',
+        type: 'variable' as OperationRequestType,
         vars: operationPayload
       }
     }

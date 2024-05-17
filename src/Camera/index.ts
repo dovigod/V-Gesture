@@ -17,6 +17,7 @@
 import * as scatter from 'scatter-gl';
 import * as params from './params';
 import type { Color } from '../types';
+import { CANVAS_ELEMENT_ID, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID } from '../constant';
 
 // These anchor points allow the hand pointcloud to resize according to its
 // position in the input.
@@ -65,8 +66,8 @@ export class Camera {
 
 
   constructor(helper: any) {
-    this.video = document.getElementById('vGesture-video')! as HTMLVideoElement;
-    this.canvas = document.getElementById('vGesture-stage')! as HTMLCanvasElement;
+    this.video = document.getElementById(VIDEO_ELEMENT_ID)! as HTMLVideoElement;
+    this.canvas = document.getElementById(CANVAS_ELEMENT_ID)! as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
     this.helper = helper;
     this.hitpoints = []
@@ -86,8 +87,8 @@ export class Camera {
     }
 
 
-    const scatterGLCtxtLeftHand = createScatterGLContext('#vGesture-scatter-gl-container-left');
-    const scatterGLCtxtRightHand = createScatterGLContext('#vGesture-scatter-gl-container-right');
+    const scatterGLCtxtLeftHand = createScatterGLContext(`#${LEFT_HAND_CONTAINER_ELEMENT_ID}`);
+    const scatterGLCtxtRightHand = createScatterGLContext(`#${RIGHT_HAND_CONTAINER_ELEMENT_ID}`);
 
     const { targetFPS } = cameraParam;
     const $size = params.VIDEO_SIZE;
@@ -123,7 +124,7 @@ export class Camera {
 
     camera.canvas.width = videoWidth;
     camera.canvas.height = videoHeight;
-    const canvasContainer = document.getElementById('vGesture-canvas-wrapper') as HTMLElement;
+    const canvasContainer = document.getElementById(CANVAS_ELEMENT_ID) as HTMLElement;
     canvasContainer.style.width = `${videoWidth}px;`
     canvasContainer.style.height = `${videoHeight}px`;
 

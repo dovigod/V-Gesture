@@ -24,10 +24,10 @@ export interface ElementBoundary {
 export type RenderedElement<T extends Node> = T
 export type HTMLValidElement = HTMLDivElement | HTMLAnchorElement | HTMLAnchorElement | HTMLAreaElement | HTMLAudioElement | HTMLBRElement | HTMLBaseElement | HTMLBodyElement | HTMLButtonElement | HTMLCanvasElement | HTMLDListElement | HTMLDetailsElement | HTMLDialogElement | HTMLFieldSetElement | HTMLFormControlsCollection | HTMLFormElement | HTMLFrameSetElementEventMap | HTMLHRElement | HTMLHeadingElement | HTMLIFrameElement | HTMLImageElement | HTMLInputElement | HTMLLIElement | HTMLLegendElement | HTMLLabelElement | HTMLLinkElement | HTMLMapElement | HTMLMediaElement | HTMLMenuElement | HTMLObjectElement | HTMLOptGroupElement | HTMLParagraphElement | HTMLPictureElement | HTMLPreElement | HTMLProgressElement | HTMLQuoteElement | HTMLSelectElement | HTMLSlotElement | HTMLSpanElement | HTMLTableCaptionElement | HTMLTableCellElement | HTMLTableColElement | HTMLTableElement | HTMLTableElement | HTMLTableRowElement | HTMLTableSectionElement | HTMLTextAreaElement | HTMLTimeElement | HTMLTitleElement | HTMLTrackElement | HTMLUListElement | HTMLVideoElement | HTMLOrSVGElement | HTMLOrSVGImageElement | Node;
 
+export type OperationRequestType = 'variable' | 'function'
 export enum Handedness {
   LEFT = 'left',
   RIGHT = 'right',
-  BOTH = 'both'
 }
 
 type RGB = `rgb(${number}, ${number}, ${number})`;
@@ -42,3 +42,22 @@ export interface HandVertex {
   y: number,
   z?: number
 }
+
+export interface OperationRecord {
+  used: number;
+  version: number;
+  operation: () => unknown;
+  value: unknown | null;
+}
+
+
+export type FunctionOperationReciept = {
+  type: OperationRequestType;
+  func: (arg?: unknown, ...arg2: unknown[]) => unknown;
+  vars: string[]
+}
+export type VariableOperationReciept = {
+  type: OperationRequestType;
+  vars: string
+}
+export type OperationReciept = FunctionOperationReciept | VariableOperationReciept
