@@ -3,6 +3,7 @@ import type { AbstractGesture, OperationKey } from './Gesture'
 import { Color, Handedness } from '../types';
 import { KDTree } from '../KDTree';
 import { ClickGestureEvent } from '../ClickGestureEvent'
+import { Camera } from '../Camera';
 
 export interface ClickGestureConfig {
   dispatchInterval?: number;
@@ -11,8 +12,6 @@ export interface ClickGestureConfig {
   threshold?: number;
   usedHand?: Handedness
 }
-
-
 
 export class ClickGesture implements AbstractGesture {
   name = 'clickGesture';
@@ -40,7 +39,6 @@ export class ClickGesture implements AbstractGesture {
 
   handler(event: unknown, gestureCollection: KDTree, triggerHelperElem?: HTMLDivElement) {
     const e = event as ClickGestureEvent;
-
     if (triggerHelperElem) {
       triggerHelperElem.style.top = e.triggerPoint.y + 'px'
       triggerHelperElem.style.left = e.triggerPoint.x + 'px'
@@ -52,7 +50,7 @@ export class ClickGesture implements AbstractGesture {
     }
   }
 
-  determinant(hands: Hand[], requestedOperations: Record<string, any>): boolean {
+  determinant(hands: Hand[], requestedOperations: Record<string, any>): any | boolean {
     //cool down
     if (this.timer) {
       return false;
@@ -64,7 +62,7 @@ export class ClickGesture implements AbstractGesture {
 
     const distance = requestedOperations['func::get2FingerDistance-thumbTip-indexTip']
     const indexTip = requestedOperations['var::indexTip'];
-    const thumbTip = requestedOperations['var::thumbTip']
+    const thumbTip = requestedOperations['var::thumbTip'];
 
     if (indexTip && thumbTip) {
       if (distance <= this.threshold) {
@@ -72,9 +70,23 @@ export class ClickGesture implements AbstractGesture {
         this.timer = setTimeout(() => {
           this.timer = null
         }, this.dispatchInterval)
-        return true
+        return { x: (indexTip.x + thumbTip.x) / 2, y: (indexTip.y + thumbTip.y) / 2 }
       }
     }
     return false;
   }
+
+
+  // draw(camera: Camera, hands: Hand[], requestedOperations: Record<string, any>) {
+  //   if (!camera) {
+  //     return;
+  //   }
+
+  //   const thumbTip = requestedOperations['var::thumbTip'];
+  //   const indexTip = requestedOperations['var::indexTip'];
+
+  //   camera.clearCtx();
+  //   camera.drawTips(indexTip)
+  //   camera.drawTips(thumbTip)
+  // }
 }

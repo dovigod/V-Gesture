@@ -51,8 +51,8 @@ function createScatterGLContext(selectors: string) {
   };
 }
 
-const scatterGLCtxtLeftHand = createScatterGLContext('#scatter-gl-container-left');
-const scatterGLCtxtRightHand = createScatterGLContext('#scatter-gl-container-right');
+const scatterGLCtxtLeftHand = createScatterGLContext('#vGesture-scatter-gl-container-left');
+const scatterGLCtxtRightHand = createScatterGLContext('#vGesture-scatter-gl-container-right');
 
 export class Camera {
   video!: HTMLVideoElement;
@@ -60,8 +60,8 @@ export class Camera {
   ctx!: CanvasRenderingContext2D;
 
   constructor() {
-    this.video = document.getElementById('video')! as HTMLVideoElement;
-    this.canvas = document.getElementById('output')! as HTMLCanvasElement;
+    this.video = document.getElementById('vGesture-video')! as HTMLVideoElement;
+    this.canvas = document.getElementById('vGesture-stage')! as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
 
   }

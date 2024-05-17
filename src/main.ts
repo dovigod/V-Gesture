@@ -11,5 +11,7 @@ async function init() {
   })
   vGesture.register(clickGesturePlugin)
   vGesture.start()
+
+
 }
 init()

@@ -16,6 +16,7 @@
  */
 import * as scatter from 'scatter-gl';
 import * as params from './params';
+import type { Color } from '../types';
 
 // These anchor points allow the hand pointcloud to resize according to its
 // position in the input.
@@ -50,19 +51,26 @@ function createScatterGLContext(selectors: string) {
   };
 }
 
-const scatterGLCtxtLeftHand = createScatterGLContext('#scatter-gl-container-left');
-const scatterGLCtxtRightHand = createScatterGLContext('#scatter-gl-container-right');
 
 export class Camera {
   video!: HTMLVideoElement;
   canvas!: HTMLCanvasElement;
   ctx!: CanvasRenderingContext2D;
+  hitpoints: any;
+  helper!: any;
+  static helper: any;
+  static ready: boolean = false;
+  static scatterGLCtxtLeftHand: any;
+  static scatterGLCtxtRightHand: any
 
-  constructor() {
-    this.video = document.getElementById('video')! as HTMLVideoElement;
-    this.canvas = document.getElementById('output')! as HTMLCanvasElement;
+
+  constructor(helper: any) {
+    this.video = document.getElementById('vGesture-video')! as HTMLVideoElement;
+    this.canvas = document.getElementById('vGesture-stage')! as HTMLCanvasElement;
+    console.log(this.video, this.canvas)
     this.ctx = this.canvas.getContext('2d')!;
-
+    this.helper = helper;
+    this.hitpoints = []
   }
 
   /**
@@ -74,6 +82,13 @@ export class Camera {
       throw new Error(
         'Browser API navigator.mediaDevices.getUserMedia not available');
     }
+    if (Camera.ready) {
+      return;
+    }
+
+
+    const scatterGLCtxtLeftHand = createScatterGLContext('#vGesture-scatter-gl-container-left');
+    const scatterGLCtxtRightHand = createScatterGLContext('#vGesture-scatter-gl-container-right');
 
     const { targetFPS } = cameraParam;
     const $size = params.VIDEO_SIZE;
@@ -90,8 +105,7 @@ export class Camera {
     };
 
     const stream = await navigator.mediaDevices.getUserMedia(videoConfig);
-
-    const camera = new Camera();
+    const camera = new Camera(this.helper);
     camera.video.srcObject = stream;
 
     await new Promise((resolve) => {
@@ -110,7 +124,7 @@ export class Camera {
 
     camera.canvas.width = videoWidth;
     camera.canvas.height = videoHeight;
-    const canvasContainer = document.querySelector('.canvas-wrapper') as HTMLElement;
+    const canvasContainer = document.getElementById('vGesture-canvas-wrapper') as HTMLElement;
     canvasContainer.style.width = `${videoWidth}px;`
     canvasContainer.style.height = `${videoHeight}px`;
 
@@ -130,9 +144,54 @@ export class Camera {
     return camera;
   }
 
-  drawTips(tip: any, color: string) {
+
+  close() {
+    const tracks = (this.video.srcObject as MediaStream).getVideoTracks();
+    tracks[0].stop();
+    Camera.ready = false;
+
+  }
+  createHitPoint(point: any, color: Color) {
+    const hitpoint = new HitPoint(this.ctx, point, color);
+    this.hitpoints.push(hitpoint)
+  }
+  drawHitPoint() {
+    this.hitpoints.forEach((hitpoint: any) => {
+      hitpoint.update();
+      hitpoint.draw();
+      if (hitpoint.lifespan < 0) {
+        this.hitpoints.shift();
+      }
+    })
+  }
+  drawTips(tip: any) {
     if (!tip) {
       return;
+    }
+    let color = null;
+
+
+    switch (tip.name) {
+      case 'thumbTip': {
+        color = this.helper['thumbTipColor']
+        break;
+      }
+      case 'indexTip': {
+        color = this.helper['indexTipColor']
+        break;
+      }
+      case 'middleTip': {
+        color = this.helper['middleTipColor']
+        break;
+      }
+      case 'ringTip': {
+        color = this.helper['ringTipColor']
+        break;
+      }
+      case 'pinkyTip': {
+        color = this.helper['pinkyTipColor']
+        break;
+      }
     }
 
     this.ctx.fillStyle = color;
@@ -169,7 +228,7 @@ export class Camera {
     for (let i = 0; i < hands.length; ++i) {
       // Third hand and onwards scatterGL context is set to null since we
       // don't render them.
-      const ctxt = [scatterGLCtxtLeftHand, scatterGLCtxtRightHand][i];
+      const ctxt = [Camera.scatterGLCtxtLeftHand, Camera.scatterGLCtxtRightHand][i];
       this.drawResult(hands[i], ctxt);
     }
   }
@@ -268,3 +327,34 @@ export class Camera {
 }
 
 
+
+class HitPoint {
+  point: any;
+  r: number;
+  g: number;
+  b: number;
+  lifespan: number;
+  ctx: any;
+  constructor(ctx: any, point: any, color: Color) {
+    this.ctx = ctx
+    this.r = parseInt(color.slice(1, 3), 16);
+    this.g = parseInt(color.slice(3, 5), 16);
+    this.b = parseInt(color.slice(5, 7), 16);
+    this.point = point
+    this.lifespan = 1;
+  }
+
+  draw() {
+    this.ctx.beginPath();
+    this.ctx.arc(this.point.x, this.point.y, 30, 0, 2 * Math.PI);
+
+    this.ctx.fillStyle = `rgba(${this.r}, ${this.g}, ${this.b} , ${this.lifespan})`;
+    this.ctx.fill();
+    this.ctx.closePath()
+  }
+
+  update() {
+    this.lifespan -= 0.01
+  }
+
+}

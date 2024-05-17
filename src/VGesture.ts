@@ -31,7 +31,7 @@ export class VGesture {
   gestureTargetCollection!: KDTree
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
-
+  private sessionState: number;
   //VGestureConfig
   handedness!: Handedness;
   dimension!: 2; // currently only 2 is allowed.
@@ -53,8 +53,7 @@ export class VGesture {
     this.handedness = handedness;
     this.dimension = dimension;
     this.gestureManager = new GestureManager()
-
-
+    this.sessionState = 0;
   }
 
   async initialize() {
@@ -67,8 +66,42 @@ export class VGesture {
     // aggregate and prepare gClickable collection
     await this._generateGestureTargetCollection();
 
+    // create video , canvas element to detect & draw scene
+    const wrapper = document.createElement('div');
+    const video = document.createElement('video')
+    const canvas = document.createElement('canvas');
+    const leftHandContainer = document.createElement('div');
+    const rightHandContainer = document.createElement('div');
+    leftHandContainer.id = 'vGesture-scatter-gl-container-left'
+    rightHandContainer.id = 'vGesture-scatter-gl-container-right';
+    video.id = 'vGesture-video';
+    canvas.id = 'vGesture-stage';
+    wrapper.id = 'vGesture-canvas-wrapper';
+
+    leftHandContainer.style.float = 'left'
+    rightHandContainer.style.float = 'left'
+    leftHandContainer.style.position = 'relative'
+    rightHandContainer.style.position = 'relative'
+    wrapper.style.position = 'absolute';
+    wrapper.style.top = '0px';
+    wrapper.style.left = '0px';
+    wrapper.style.zIndex = '99999';
+    video.playsInline = true;
+    video.style.visibility = 'hidden';
+    video.style.position = 'absolute';
+    video.style.transform = 'scaleX(-1)'
+    canvas.style.zIndex = '99999';
+    canvas.style.position = 'absolute';
+
+    wrapper.appendChild(leftHandContainer);
+    wrapper.appendChild(rightHandContainer)
+    wrapper.appendChild(video);
+    wrapper.appendChild(canvas);
+    document.body.appendChild(wrapper)
+
+
     // setup prepare camera and detector model
-    this.detector = new HandDetector(this.gestureManager);
+    this.detector = new HandDetector(this.gestureManager, this.helper);
     await this.detector.initialize();
 
     this.initialized = true;
@@ -78,17 +111,24 @@ export class VGesture {
     if (!this.initialized || !this.detector) {
       throw new Error('Validation Error: V-Gesture not initialized')
     }
-
+    if (this.sessionState === -1) {
+      throw new Error('Cannot reuse VGesture session. Please re-instantiate it')
+    }
+    this.sessionState = 1;
     const detector: HandDetector = this.detector
 
     detector.startPrediction()
   }
 
-  pause() {
+  stop() {
     if (!this.initialized) {
       throw new Error('Validation Error: V-Gesture not initialized')
     }
+    this.sessionState = -1
     this.detector?.pausePrediction()
+    this.detector?.camera?.close();
+    this.gestureManager.disposeAll();
+    this.initialized = false;
   }
 
   register(plugin: AbstractGesturePlugin) {
