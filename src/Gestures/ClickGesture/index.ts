@@ -1,9 +1,8 @@
 import { Hand } from '@tensorflow-models/hand-pose-detection'
-import type { AbstractGesture, OperationKey } from './Gesture'
-import { Color, Handedness } from '../types';
-import { KDTree } from '../KDTree';
-import { ClickGestureEvent } from '../ClickGestureEvent'
-import { Camera } from '../Camera';
+import type { AbstractGesture, OperationKey } from '../Gesture'
+import { Color, Handedness } from '../../types';
+import { KDTree } from '../../KDTree';
+import { ClickGestureEvent } from './ClickGestureEvent'
 
 export interface ClickGestureConfig {
   dispatchInterval?: number;
@@ -24,6 +23,7 @@ export class ClickGesture implements AbstractGesture {
   timer: number | null = null;
   operationsRequest: OperationKey[] = [
     "func::get2FingerDistance-thumbTip-indexTip",
+    "func::get2FingerDistance-thumbTip-middleTip",
     "var::thumbTip",
     "var::indexTip"
   ];
@@ -76,17 +76,4 @@ export class ClickGesture implements AbstractGesture {
     return false;
   }
 
-
-  // draw(camera: Camera, hands: Hand[], requestedOperations: Record<string, any>) {
-  //   if (!camera) {
-  //     return;
-  //   }
-
-  //   const thumbTip = requestedOperations['var::thumbTip'];
-  //   const indexTip = requestedOperations['var::indexTip'];
-
-  //   camera.clearCtx();
-  //   camera.drawTips(indexTip)
-  //   camera.drawTips(thumbTip)
-  // }
 }
