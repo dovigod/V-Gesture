@@ -8,31 +8,75 @@ import { AbstractGesturePlugin } from './Plugins/Plugin';
 import { VGestureError } from './error';
 import { traverse } from './utils/dom/traverse';
 import { error, warn } from './utils/console'
-import { CANVAS_ELEMENT_ID, DEFAULT_TIPS_COLOR, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID, WRAPPER_ELEMENT_ID } from './constant'
+import { CANVAS_ELEMENT_ID, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID, WRAPPER_ELEMENT_ID } from './constant'
 import { ERROR_TYPE, SESSION_STATE, Handedness } from './types'
 import type { OperationKey } from './Gestures/Gesture';
-import type { Boundary2D, ElementBoundary, Color, OperationRecord } from './types';
+import type { Boundary2D, ElementBoundary, Color, OperationRecord, Helper } from './types';
 
 
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
 const $$driverKey = Symbol('driverKey');
 
 interface HelperConfig {
-  indexTipColor?: Color;
-  thumbTipColor?: Color;
-  middleTipColor?: Color;
-  ringTipColor?: Color;
-  pinkyTipColor?: Color;
+  hitpoint?: {
+    color?: Color;
+    size?: number
+  }
+  colors?: {
+    indexTip?: Color;
+    thumbTip?: Color;
+    middleTip?: Color;
+    ringTip?: Color;
+    pinkyTip?: Color;
+    wrist?: Color;
+    thumbCmc?: Color;
+    thumbIp?: Color;
+    indexMcp?: Color;
+    indexPip?: Color;
+    indexDip?: Color;
+    middleMcp?: Color;
+    middlePip?: Color;
+    middleDip?: Color;
+    ringMcp?: Color;
+    ringPip?: Color;
+    ringDip?: Color;
+    pinkyMcp?: Color;
+    pinkyPip?: Color;
+    pinkyDip?: Color;
+  };
+  sizes?: {
+    indexTip?: number;
+    thumbTip?: number;
+    middleTip?: number;
+    ringTip?: number;
+    pinkyTip?: number;
+    wrist?: number;
+    thumbCmc?: number;
+    thumbIp?: number;
+    indexMcp?: number;
+    indexPip?: number;
+    indexDip?: number;
+    middleMcp?: number;
+    middlePip?: number;
+    middleDip?: number;
+    ringMcp?: number;
+    ringPip?: number;
+    ringDip?: number;
+    pinkyMcp?: number;
+    pinkyPip?: number;
+    pinkyDip?: number;
+  }
 }
 interface VGestureOption {
   handedness?: Handedness;
   dataDimension?: 2;
+  disableHelper?: Boolean;
   helper?: HelperConfig;
 }
 
 export class VGesture {
-  gestureManager: GestureManager
-  gestureTargetCollection!: KDTree
+  public gestureManager: GestureManager
+  public gestureTargetCollection!: KDTree
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
   private camera: Camera | null = null;
@@ -40,24 +84,19 @@ export class VGesture {
   private sessionState: SESSION_STATE;
   private frameId: number | null = null;
   //VGestureConfig
-  handedness!: Handedness;
-  dataDimension!: 2; // currently only 2 is allowed.
-  helper!: HelperConfig;
+  public dataDimension!: 2; // currently only 2 is allowed.
+  public helper: Helper | null;
 
   constructor(options?: VGestureOption) {
     // populating configs
-    const handedness = options?.handedness || Handedness.LEFT;
     const dataDimension = options?.dataDimension || 2;
-    const helper = {
-      indexTipColor: options?.helper?.indexTipColor || DEFAULT_TIPS_COLOR[0],
-      thumbTipColor: options?.helper?.thumbTipColor || DEFAULT_TIPS_COLOR[1],
-      middleTipColor: options?.helper?.middleTipColor || DEFAULT_TIPS_COLOR[2],
-      ringTipColor: options?.helper?.ringTipColor || DEFAULT_TIPS_COLOR[3],
-      pinkyTipColor: options?.helper?.pinkyTipColor || DEFAULT_TIPS_COLOR[4],
+    const helper = options?.disableHelper ? null : {
+      colors: options?.helper?.colors || {},
+      sizes: options?.helper?.sizes || {},
+      hitpoint: options?.helper?.hitpoint || {}
     };
 
-    this.helper = helper;
-    this.handedness = handedness;
+    this.helper = helper as Helper | null;
     this.dataDimension = dataDimension;
     this.gestureManager = new GestureManager()
     this.sessionState = SESSION_STATE.IDLE;
@@ -200,7 +239,7 @@ export class VGesture {
 
       const det = gesture.determinant(hands, requestedOperations)
       if (det) {
-        this.camera?.createHitPoint(det, gesture.triggerPointColor || '#000000');
+        this.camera?.createHitPoint(det);
       }
     })
 

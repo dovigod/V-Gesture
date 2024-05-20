@@ -16,8 +16,8 @@
  */
 import * as scatter from 'scatter-gl';
 import * as params from './params';
-import { ERROR_TYPE, type Color } from '../types';
-import { CANVAS_ELEMENT_ID, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID } from '../constant';
+import { ERROR_TYPE, Helper, Tip, type Color } from '../types';
+import { CANVAS_ELEMENT_ID, DEFAULT_HIT_POINT_COLOR, DEFAULT_HIT_POINT_SIZE, DEFAULT_TIP_VERTEX_COLOR, DEFAULT_TIP_VERTEX_SIZE, DEFAULT_VERTEX_COLOR, DEFAULT_VERTEX_SIZE, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID } from '../constant';
 import { VGestureError } from '../error';
 
 
@@ -60,20 +60,19 @@ export class Camera {
   canvas!: HTMLCanvasElement;
   ctx!: CanvasRenderingContext2D;
   hitpoints: any;
-  helper!: any;
-  static helper: any;
+  helper!: Helper | null;
+  static helper: Helper | null;
   static ready: boolean = false;
   static scatterGLCtxtLeftHand: any;
   static scatterGLCtxtRightHand: any
 
 
-  constructor(helper: any) {
+  constructor(helper: Helper | null) {
     this.video = document.getElementById(VIDEO_ELEMENT_ID)! as HTMLVideoElement;
     this.canvas = document.getElementById(CANVAS_ELEMENT_ID)! as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
     this.helper = helper;
     this.hitpoints = []
-
   }
 
   /**
@@ -154,11 +153,17 @@ export class Camera {
     Camera.ready = false;
 
   }
-  createHitPoint(point: any, color: Color) {
-    const hitpoint = new HitPoint(this.ctx, point, color);
+  createHitPoint(point: { x: number, y: number }) {
+    const color = this.helper?.hitpoint.color || DEFAULT_HIT_POINT_COLOR;
+    const size = this.helper?.hitpoint.size || DEFAULT_HIT_POINT_SIZE;
+
+    const hitpoint = new HitPoint(this.ctx, point, color, size);
     this.hitpoints.push(hitpoint)
   }
   drawHitPoint() {
+    if (!this.helper) {
+      return;
+    }
     this.hitpoints.forEach((hitpoint: any) => {
       hitpoint.update();
       hitpoint.draw();
@@ -167,40 +172,50 @@ export class Camera {
       }
     })
   }
-  drawTips(tip: any) {
+  drawTips(tip: Tip) {
     if (!tip) {
       return;
     }
-    let color = null;
-
+    if (!this.helper) {
+      return;
+    }
+    let color = DEFAULT_VERTEX_COLOR;
+    let size = DEFAULT_VERTEX_SIZE;
 
     switch (tip.name) {
       case 'thumbTip': {
-        color = this.helper['thumbTipColor']
+        color = this.helper?.colors['thumbTip'] || DEFAULT_TIP_VERTEX_COLOR[0]
+        size = this.helper?.sizes['thumbTip'] || DEFAULT_TIP_VERTEX_SIZE
         break;
       }
       case 'indexTip': {
-        color = this.helper['indexTipColor']
+        color = this.helper?.colors['indexTip'] || DEFAULT_TIP_VERTEX_COLOR[1]
+        size = this.helper?.sizes['indexTip'] || DEFAULT_TIP_VERTEX_SIZE
         break;
       }
       case 'middleTip': {
-        color = this.helper['middleTipColor']
+        color = this.helper?.colors['middleTip'] || DEFAULT_TIP_VERTEX_COLOR[2]
+        size = this.helper?.sizes['middleTip'] || DEFAULT_TIP_VERTEX_SIZE
         break;
       }
       case 'ringTip': {
-        color = this.helper['ringTipColor']
+        color = this.helper?.colors['ringTip'] || DEFAULT_TIP_VERTEX_COLOR[3]
+        size = this.helper?.sizes['ringTip'] || DEFAULT_TIP_VERTEX_SIZE
         break;
       }
       case 'pinkyTip': {
-        color = this.helper['pinkyTipColor']
+        color = this.helper?.colors['pinkyTip'] || DEFAULT_TIP_VERTEX_COLOR[4]
+        size = this.helper?.sizes['pinkyTip'] || DEFAULT_TIP_VERTEX_SIZE
         break;
       }
     }
 
     this.ctx.fillStyle = color;
     this.ctx.beginPath();
-    this.ctx.arc(tip.x, tip.y, 30, 0, Math.PI * 2);
-    this.ctx.fill();
+    if (typeof tip.x === 'number' && typeof tip.y === 'number') {
+      this.ctx.arc(tip.x, tip.y, size, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
     this.ctx.closePath()
 
   }
@@ -333,24 +348,27 @@ export class Camera {
 
 
 class HitPoint {
-  point: any;
+  ctx: CanvasRenderingContext2D;
+  point: { x: number, y: number };
   r: number;
   g: number;
   b: number;
   lifespan: number;
-  ctx: any;
-  constructor(ctx: any, point: any, color: Color) {
+  size: number;
+
+  constructor(ctx: CanvasRenderingContext2D, point: { x: number, y: number }, color: Color, size: number) {
     this.ctx = ctx
     this.r = parseInt(color.slice(1, 3), 16);
     this.g = parseInt(color.slice(3, 5), 16);
     this.b = parseInt(color.slice(5, 7), 16);
     this.point = point
     this.lifespan = 1;
+    this.size = size;
   }
 
   draw() {
     this.ctx.beginPath();
-    this.ctx.arc(this.point.x, this.point.y, 30, 0, 2 * Math.PI);
+    this.ctx.arc(this.point.x, this.point.y, this.size, 0, 2 * Math.PI);
 
     this.ctx.fillStyle = `rgba(${this.r}, ${this.g}, ${this.b} , ${this.lifespan})`;
     this.ctx.fill();

@@ -42,9 +42,4 @@ export interface AbstractGesture {
    * active hand which used for dectecting gesture
    */
   usedHand: Handedness
-
-  /**
-   * hit point color on trigger
-   */
-  triggerPointColor?: Color;
 }
