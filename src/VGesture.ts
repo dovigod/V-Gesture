@@ -147,7 +147,16 @@ export class VGesture {
     camera.drawHitPoint();
 
     // predict result
-    const hands = await detector.predict(camera);
+    let hands;
+
+    try {
+      hands = await detector.predict(camera)
+    } catch (error: unknown) {
+      if (error instanceof VGestureError && error.type === ERROR_TYPE.PREDICTION) {
+        this.endDetection();
+      }
+      throw error
+    }
 
     if (!hands) {
       return;
