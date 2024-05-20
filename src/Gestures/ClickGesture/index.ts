@@ -21,6 +21,7 @@ export class ClickGesture implements AbstractGesture {
   triggerPointColor: Color;
   threshold: number;
   timer: number | null = null;
+  _test: boolean = false;
   operationsRequest: OperationKey[] = [
     "func::get2FingerDistance-thumbTip-indexTip",
     "func::get2FingerDistance-thumbTip-middleTip",
