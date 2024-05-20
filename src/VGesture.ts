@@ -1,16 +1,17 @@
-import { KDTree } from './KDTree';
-import { Boundary2D, ElementBoundary, Handedness, Color, OperationRecord, ERROR_TYPE } from './types';
-import { traverse } from './utils/dom/traverse';
 import Fastdom from 'fastdom';
 import fastdomPromiseExtension from 'fastdom/extensions/fastdom-promised'
-import { error, warn } from './utils/console'
 import { HandDetector } from './HandDetector';
-import { AbstractGesturePlugin } from './Plugins/Plugin';
-import { GestureManager } from './GestureManager';
-import { CANVAS_ELEMENT_ID, DEFAULT_TIPS_COLOR, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID, WRAPPER_ELEMENT_ID } from './constant'
 import { Camera } from './Camera';
-import type { OperationKey } from './Gestures/Gesture';
+import { KDTree } from './KDTree';
+import { GestureManager } from './GestureManager';
+import { AbstractGesturePlugin } from './Plugins/Plugin';
 import { VGestureError } from './error';
+import { traverse } from './utils/dom/traverse';
+import { error, warn } from './utils/console'
+import { CANVAS_ELEMENT_ID, DEFAULT_TIPS_COLOR, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID, WRAPPER_ELEMENT_ID } from './constant'
+import { ERROR_TYPE, SESSION_STATE, Handedness } from './types'
+import type { OperationKey } from './Gestures/Gesture';
+import type { Boundary2D, ElementBoundary, Color, OperationRecord } from './types';
 
 
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
@@ -30,14 +31,13 @@ interface VGestureOption {
 }
 
 export class VGesture {
-
   gestureManager: GestureManager
   gestureTargetCollection!: KDTree
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
   private camera: Camera | null = null;
 
-  private sessionState: number;
+  private sessionState: SESSION_STATE;
   private frameId: number | null = null;
   //VGestureConfig
   handedness!: Handedness;
@@ -60,7 +60,7 @@ export class VGesture {
     this.handedness = handedness;
     this.dataDimension = dataDimension;
     this.gestureManager = new GestureManager()
-    this.sessionState = 0;
+    this.sessionState = SESSION_STATE.IDLE;
   }
 
   async initialize() {
@@ -84,17 +84,17 @@ export class VGesture {
     await this.detector.initialize();
 
     this.initialized = true;
-    this.sessionState = 1;
+    this.sessionState = SESSION_STATE.READY;
   }
 
   async startDetection() {
     if (!this.initialized || !this.detector) {
-      throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, 'Validation Error: V-Gesture not initialized')
+      throw new VGestureError(ERROR_TYPE.VALIDATION, 'VGesture.startDetection', 'Validation Error: V-Gesture not initialized')
     }
-    if (this.sessionState === -1) {
-      throw new VGestureError(ERROR_TYPE.NOT_ALLOWED, arguments.callee.name, 'Cannot reuse VGesture session. Please re-instantiate')
+    if (this.sessionState === SESSION_STATE.FINISHED) {
+      throw new VGestureError(ERROR_TYPE.NOT_ALLOWED, 'VGesture.startDetection', 'Cannot reuse VGesture session. Please re-instantiate')
     }
-    this.sessionState = 2;
+    this.sessionState = SESSION_STATE.RUNNING;
     const self = this;
     async function _() {
       await self.task($$driverKey)
@@ -104,11 +104,11 @@ export class VGesture {
 
   }
 
-  stopDetection() {
+  endDetection() {
     if (!this.initialized) {
-      throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, 'Validation Error: V-Gesture not initialized')
+      throw new VGestureError(ERROR_TYPE.VALIDATION, 'VGesture.stopDetection', 'Validation Error: V-Gesture not initialized')
     }
-    this.sessionState = -1
+    this.sessionState = SESSION_STATE.FINISHED
     if (this.frameId) {
       cancelAnimationFrame(this.frameId);
     }
@@ -121,7 +121,6 @@ export class VGesture {
   register(plugin: AbstractGesturePlugin) {
     const gestureName = plugin.gesture.name;
     const gestureManager = this.gestureManager;
-    console.log(gestureManager)
     if (gestureManager.has(gestureName)) {
       warn(`${gestureName} is already registered`);
       return;
@@ -136,7 +135,7 @@ export class VGesture {
 
   private async task(key: Symbol) {
     if (key !== $$driverKey) {
-      throw new VGestureError(ERROR_TYPE.NOT_ALLOWED, arguments.callee.name, 'executing task directly is not allowed');
+      throw new VGestureError(ERROR_TYPE.NOT_ALLOWED, 'VGesture.task', 'executing task directly is not allowed');
     }
 
     const detector = this.detector!;

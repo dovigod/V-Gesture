@@ -9,6 +9,8 @@ async function init() {
   })
 
   vGesture.register(clickGesturePlugin)
-  vGesture.startDetection()
+  await vGesture.startDetection()
+  vGesture.endDetection()
+  // await vGesture.startDetection()
 }
 init()

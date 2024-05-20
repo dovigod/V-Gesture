@@ -84,7 +84,7 @@ export class Camera {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       throw new VGestureError(
         ERROR_TYPE.UNSUPPORT,
-        arguments.callee.name,
+        'Camera.setupCamera',
         'Browser API navigator.mediaDevices.getUserMedia not available');
     }
     if (Camera.ready) {
