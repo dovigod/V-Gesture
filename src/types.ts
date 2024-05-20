@@ -76,3 +76,21 @@ export enum SESSION_STATE {
   RUNNING = 'running',
   FINISHED = 'finished'
 }
+
+export type UsedKeypointName = 'indexTip' | 'thumbTip' | 'middleTip' | 'ringTip' | 'pinkyTip' | 'wrist' | 'thumbCmc' | 'thumbIp' | 'indexMcp' | 'indexPip' | 'indexDip' | 'middleMcp' | 'middlePip' | 'middleDip' | 'ringMcp' | 'ringPip' | 'ringDip' | 'pinkyMcp' | 'pinkyPip' | 'pinkyDip'
+export interface Helper {
+  colors: Record<UsedKeypointName, Color | undefined>;
+  sizes: Record<UsedKeypointName, number | undefined>;
+  hitpoint: {
+    color?: Color;
+    size?: number
+  }
+}
+export interface Coord2D {
+  x: number | null;
+  y: number | null;
+}
+
+export interface Tip extends Coord2D {
+  name: string;
+}

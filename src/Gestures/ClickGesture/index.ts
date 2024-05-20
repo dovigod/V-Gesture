@@ -6,8 +6,6 @@ import { ClickGestureEvent } from './ClickGestureEvent'
 
 export interface ClickGestureConfig {
   dispatchInterval?: number;
-  displayTriggerPoint?: boolean;
-  triggerPointColor?: Color;
   threshold?: number;
   usedHand?: Handedness
 }
@@ -17,8 +15,6 @@ export class ClickGesture implements AbstractGesture {
   eventName = 'clickGesture';
   usedHand: Handedness;
   dispatchInterval: number;
-  displayTriggerPoint: boolean = false;
-  triggerPointColor: Color;
   threshold: number;
   timer: number | null = null;
   _test: boolean = false;
@@ -31,11 +27,8 @@ export class ClickGesture implements AbstractGesture {
 
   constructor(config?: ClickGestureConfig) {
     this.dispatchInterval = config?.dispatchInterval || 500;
-    this.displayTriggerPoint = config?.displayTriggerPoint || false;
-    this.triggerPointColor = config?.triggerPointColor || '#B388EB';
     this.threshold = config?.threshold || 1200;
     this.usedHand = config?.usedHand || Handedness.LEFT
-
   }
 
   handler(event: unknown, gestureCollection: KDTree, triggerHelperElem?: HTMLDivElement) {

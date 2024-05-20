@@ -6,6 +6,7 @@ import { Camera } from "../Camera";
 import { protect, createMutationEnvelop } from "../utils/validation/trap";
 import { VGestureError } from "../error";
 import { ERROR_TYPE } from '../types'
+
 const $$setterAccessKey = Symbol('HandDetector-setter-access-key')
 export class HandDetector {
 
