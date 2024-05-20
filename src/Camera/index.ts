@@ -16,8 +16,10 @@
  */
 import * as scatter from 'scatter-gl';
 import * as params from './params';
-import type { Color } from '../types';
+import { ERROR_TYPE, type Color } from '../types';
 import { CANVAS_ELEMENT_ID, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID } from '../constant';
+import { VGestureError } from '../error';
+
 
 // These anchor points allow the hand pointcloud to resize according to its
 // position in the input.
@@ -71,6 +73,7 @@ export class Camera {
     this.ctx = this.canvas.getContext('2d')!;
     this.helper = helper;
     this.hitpoints = []
+
   }
 
   /**
@@ -79,13 +82,14 @@ export class Camera {
    */
   static async setupCamera(cameraParam: any) {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error(
+      throw new VGestureError(
+        ERROR_TYPE.UNSUPPORT,
+        arguments.callee.name,
         'Browser API navigator.mediaDevices.getUserMedia not available');
     }
     if (Camera.ready) {
       return;
     }
-
 
     const scatterGLCtxtLeftHand = createScatterGLContext(`#${LEFT_HAND_CONTAINER_ELEMENT_ID}`);
     const scatterGLCtxtRightHand = createScatterGLContext(`#${RIGHT_HAND_CONTAINER_ELEMENT_ID}`);
@@ -103,17 +107,16 @@ export class Camera {
         }
       }
     };
-
     const stream = await navigator.mediaDevices.getUserMedia(videoConfig);
     const camera = new Camera(this.helper);
-    camera.video.srcObject = stream;
+
+    camera.video.srcObject = stream
 
     await new Promise((resolve) => {
       camera.video.onloadedmetadata = () => {
         resolve(camera.video);
       };
     });
-
     camera.video.play();
 
     const videoWidth = camera.video.videoWidth;
@@ -324,6 +327,7 @@ export class Camera {
     ctxt.scatterGL.setSequences(sequences);
     ctxt.scatterGLHasInitialized = true;
   }
+
 }
 
 
@@ -356,5 +360,6 @@ class HitPoint {
   update() {
     this.lifespan -= 0.01
   }
+
 
 }

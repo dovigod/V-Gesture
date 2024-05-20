@@ -1,5 +1,5 @@
 import { KDTree } from './KDTree';
-import { Boundary2D, ElementBoundary, Handedness, Color } from './types';
+import { Boundary2D, ElementBoundary, Handedness, Color, OperationRecord, ERROR_TYPE } from './types';
 import { traverse } from './utils/dom/traverse';
 import Fastdom from 'fastdom';
 import fastdomPromiseExtension from 'fastdom/extensions/fastdom-promised'
@@ -8,9 +8,13 @@ import { HandDetector } from './HandDetector';
 import { AbstractGesturePlugin } from './Plugins/Plugin';
 import { GestureManager } from './GestureManager';
 import { CANVAS_ELEMENT_ID, DEFAULT_TIPS_COLOR, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID, WRAPPER_ELEMENT_ID } from './constant'
+import { Camera } from './Camera';
+import type { OperationKey } from './Gestures/Gesture';
+import { VGestureError } from './error';
 
 
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
+const $$driverKey = Symbol('driverKey');
 
 interface HelperConfig {
   indexTipColor?: Color;
@@ -21,7 +25,7 @@ interface HelperConfig {
 }
 interface VGestureOption {
   handedness?: Handedness;
-  dimension?: 2;
+  dataDimension?: 2;
   helper?: HelperConfig;
 }
 
@@ -31,16 +35,19 @@ export class VGesture {
   gestureTargetCollection!: KDTree
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
+  private camera: Camera | null = null;
+
   private sessionState: number;
+  private frameId: number | null = null;
   //VGestureConfig
   handedness!: Handedness;
-  dimension!: 2; // currently only 2 is allowed.
+  dataDimension!: 2; // currently only 2 is allowed.
   helper!: HelperConfig;
 
   constructor(options?: VGestureOption) {
     // populating configs
     const handedness = options?.handedness || Handedness.LEFT;
-    const dimension = options?.dimension || 2;
+    const dataDimension = options?.dataDimension || 2;
     const helper = {
       indexTipColor: options?.helper?.indexTipColor || DEFAULT_TIPS_COLOR[0],
       thumbTipColor: options?.helper?.thumbTipColor || DEFAULT_TIPS_COLOR[1],
@@ -51,7 +58,7 @@ export class VGesture {
 
     this.helper = helper;
     this.handedness = handedness;
-    this.dimension = dimension;
+    this.dataDimension = dataDimension;
     this.gestureManager = new GestureManager()
     this.sessionState = 0;
   }
@@ -66,36 +73,46 @@ export class VGesture {
     // aggregate and prepare gClickable collection
     await this._generateGestureTargetCollection();
 
+    // create required elems to run V-Gesture
     this._createStarterElems()
 
+    // setup camera and detector model
+    this.detector = new HandDetector();
+    this.camera = new Camera(this.helper)
 
-    // setup prepare camera and detector model
-    this.detector = new HandDetector(this.gestureManager, this.helper);
+    await Camera.setupCamera({ targetFPS: 60 });
     await this.detector.initialize();
 
     this.initialized = true;
+    this.sessionState = 1;
   }
 
-  start() {
+  async startDetection() {
     if (!this.initialized || !this.detector) {
-      throw new Error('Validation Error: V-Gesture not initialized')
+      throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, 'Validation Error: V-Gesture not initialized')
     }
     if (this.sessionState === -1) {
-      throw new Error('Cannot reuse VGesture session. Please re-instantiate it')
+      throw new VGestureError(ERROR_TYPE.NOT_ALLOWED, arguments.callee.name, 'Cannot reuse VGesture session. Please re-instantiate')
     }
-    this.sessionState = 1;
-    const detector: HandDetector = this.detector
+    this.sessionState = 2;
+    const self = this;
+    async function _() {
+      await self.task($$driverKey)
+      self.frameId = requestAnimationFrame(_);
+    }
+    _();
 
-    detector.startPrediction()
   }
 
-  stop() {
+  stopDetection() {
     if (!this.initialized) {
-      throw new Error('Validation Error: V-Gesture not initialized')
+      throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, 'Validation Error: V-Gesture not initialized')
     }
     this.sessionState = -1
-    this.detector?.pausePrediction()
-    this.detector?.camera?.close();
+    if (this.frameId) {
+      cancelAnimationFrame(this.frameId);
+    }
+    this.camera!.close();
     this.gestureManager.disposeAll();
     this._cleanStartedElems();
     this.initialized = false;
@@ -104,6 +121,7 @@ export class VGesture {
   register(plugin: AbstractGesturePlugin) {
     const gestureName = plugin.gesture.name;
     const gestureManager = this.gestureManager;
+    console.log(gestureManager)
     if (gestureManager.has(gestureName)) {
       warn(`${gestureName} is already registered`);
       return;
@@ -116,14 +134,78 @@ export class VGesture {
     this.gestureManager.dispose(gestureName)
   }
 
+  private async task(key: Symbol) {
+    if (key !== $$driverKey) {
+      throw new VGestureError(ERROR_TYPE.NOT_ALLOWED, arguments.callee.name, 'executing task directly is not allowed');
+    }
+
+    const detector = this.detector!;
+    const camera = this.camera!;
+    const gestureManager = this.gestureManager
+
+    // for smooth vanishing
+    camera.clearCtx();
+    camera.drawHitPoint();
+
+    // predict result
+    const hands = await detector.predict(camera);
+
+    if (!hands) {
+      return;
+    }
+
+    // update hand vertex
+    for (const hand of hands) {
+      const direction = hand.handedness === 'Right' ? Handedness.LEFT : Handedness.RIGHT;
+      gestureManager.updateHandVertex(direction as Handedness, hand);
+      gestureManager.handsVertex.get(direction)?.forEach((vertex) => {
+        camera.drawTips(vertex)
+      })
+      camera.drawHitPoint();
+    }
+
+    // get requested operation from gestureManager.
+    // if requestedOperation is staled (controled by version), refresh 
+    gestureManager.version = (gestureManager.version + 1) % 8;
+    gestureManager.gestures.forEach((gesture) => {
+      let requestedOperations: Record<OperationKey, OperationRecord> | undefined;
+
+      if (gesture.operationsRequest && gesture.operationsRequest.length > 0) {
+        requestedOperations = {};
+        for (const key of gesture.operationsRequest) {
+          let value: any;
+          const record = gestureManager.sharedOperations.get(key)
+
+          if (record) {
+            if (record.version !== gestureManager.version) {
+              record.value = record.operation();
+              record.version++;
+              gestureManager.sharedOperations.set(key, record)
+              value = record.value;
+            } else {
+              value = record.value
+            }
+            requestedOperations[key] = value;
+          }
+        }
+      }
+
+      const det = gesture.determinant(hands, requestedOperations)
+      if (det) {
+        this.camera?.createHitPoint(det, gesture.triggerPointColor || '#000000');
+      }
+    })
+
+  }
+
   private async _generateGestureTargetCollection() {
     const PREFIX = 'g-clickable-element'
     const elemBoundaries: ElementBoundary[] = []
     let id = 0;
 
     await fastdom.mutate(() => {
-      // traverse sub Dom tree root of body node, and find all elems with gClickable specified elements
-      // then create kdtree to handle event target domain
+      // traverse from  Dom tree, rooting from body node, find all elems with gClickable specified elements
+      // create kdtree to handle event target domain
       traverse(document.body, (elem) => {
         if ((elem as HTMLElement).hasAttribute('gClickable')) {
           const clickableElem = elem as HTMLElement

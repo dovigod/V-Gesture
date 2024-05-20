@@ -1,4 +1,5 @@
-import type { Point, Vector2D, Vector3D, ElementBoundary } from './types'
+import { VGestureError } from './error';
+import { type Point, type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE } from './types'
 import { getRawDistance, getCloserDistance } from './utils/math'
 
 const MAXIMUM_SUPPORTED_DIMENSION = 3;
@@ -28,7 +29,7 @@ export class KDTree {
   constructor(data: ElementBoundary[], dimension = 2, _depth = 0) {
 
     if (dimension > MAXIMUM_SUPPORTED_DIMENSION) {
-      throw new Error('Unable to construct K-d tree. Unsupported Dimension');
+      throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, 'Unable to construct K-d tree. Unsupported Dimension');
     }
 
     this.data = data;
@@ -104,7 +105,7 @@ function sort(data: ElementBoundary[], axis: number) {
   }
 
 
-  throw new Error(`UnSupported axis: ${axis}`)
+  throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, `UnSupported axis: ${axis}`)
 }
 
 

@@ -61,3 +61,11 @@ export type VariableOperationReciept = {
   vars: string
 }
 export type OperationReciept = FunctionOperationReciept | VariableOperationReciept
+
+export enum ERROR_TYPE {
+  VALIDATION = 'validation-error',
+  UNKNOWN = 'unknown-error',
+  PREDICTION = 'prediction-error',
+  UNSUPPORT = 'unsupport-error',
+  NOT_ALLOWED = 'not-allowed-error'
+}

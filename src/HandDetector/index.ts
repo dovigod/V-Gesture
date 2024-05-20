@@ -3,158 +3,59 @@ import { createDetector } from "../tensorflow/detector";
 import { setBackendAndEnvFlags } from "../tensorflow/backend";
 import { error } from "../utils/console";
 import { Camera } from "../Camera";
-import { GestureManager } from "../GestureManager";
-import { OperationKey } from "../Gestures/Gesture";
-import { Handedness, OperationRecord } from "../types";
+import { protect, createMutationEnvelop } from "../utils/validation/trap";
+import { VGestureError } from "../error";
+import { ERROR_TYPE } from '../types'
+const $$setterAccessKey = Symbol('HandDetector-setter-access-key')
 export class HandDetector {
 
-  private predictionId: number | null = null;
-  public detector: HandPoseDetector | null = null;
-  public camera: Camera | null = null;
-  private initialized: boolean = false;
-  public gestureManager: GestureManager
-  public helper: any;
+  private _detector: HandPoseDetector | null = null;
+  private _initialized: boolean = false;
 
-  constructor(gestureManager: GestureManager, helper: any) {
-    this.gestureManager = gestureManager
-    this.helper = helper
+  constructor() {
+    return protect(this, $$setterAccessKey) as HandDetector
   }
 
   async initialize() {
-    if (this.initialized) {
+    if (this._initialized) {
       error('Duplicate HandDetector initialization not allowed')
       return null;
     }
-    //traps
-    const detectorInterceptors = {
-      get: (target: HandPoseDetector, prop: string) => {
-        return Reflect.get(target, prop)
-      },
-      set: () => false
-    }
-    const cameraInterceptors = {
-      get: (target: Camera, prop: string) => {
-        return Reflect.get(target, prop)
-      },
-      set: () => false
-    }
 
-    // camera
-    const camera = new Camera(this.helper);
-    this.camera = new Proxy(camera, cameraInterceptors);
-
-
-    // wasm-backend
+    // use wasm-backend
     await setBackendAndEnvFlags({}, '');
 
-    await Camera.setupCamera({ targetFPS: 60 });
-
-    //detector
     const detector = await createDetector();
-    this.detector = new Proxy(detector, detectorInterceptors);
-
-    this.initialized = true;
-    return this
-  }
-
-  async startPrediction() {
-    if (!this.initialized) {
-      throw new Error('HandPost Detector not initialized')
-    }
-
-    const self = this;
-    async function frameCb() {
-      await self.predict();
-      self.predictionId = requestAnimationFrame(frameCb);
-    }
-
-    frameCb();
-  }
-
-  async pausePrediction() {
-    const predictionId = this.predictionId
-    if (predictionId) {
-      cancelAnimationFrame(predictionId)
-      this.predictionId = null;
-    }
+    this._detector = createMutationEnvelop($$setterAccessKey, detector);
+    this._initialized = createMutationEnvelop($$setterAccessKey, true);
   }
 
 
-  private async predict() {
-    const camera = this.camera;
-    const detector = this.detector;
-    if (!camera || !detector || !this.initialized) {
-      throw new Error('HandPost Detector not initialized')
+  async predict(camera: Camera) {
+
+    const detector = this._detector;
+    if (!detector || !this._initialized) {
+      throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, 'HandPost Detector not initialized')
     }
     const hands = await detector?.estimateHands(
       camera.video,
       { flipHorizontal: false }
     ).catch(error => {
-      return {
-        error
-      }
+      throw new VGestureError(ERROR_TYPE.PREDICTION, 'estimateHands', error)
     })
 
     if (!(hands instanceof Array)) {
       detector?.dispose();
-      this.detector = null;
-      // camera off..
-      throw (hands as { error: any }).error
+      this._detector = createMutationEnvelop($$setterAccessKey, null);
+      camera.close()
+      // hoist up closing to V-gesture
+      throw new VGestureError(ERROR_TYPE.PREDICTION, arguments.callee.name, `Prediction failed. expected prediction return type to be array but got ${typeof hands}`)
     }
-
-    // for smooth vanishing
-    this.camera?.clearCtx();
-    this.camera?.drawHitPoint();
 
     if (hands.length === 0) {
       return;
     }
 
-
-    // update hand vertex
-    for (const hand of hands) {
-      const direction = hand.handedness === 'Right' ? Handedness.LEFT : Handedness.RIGHT;
-      this.gestureManager.updateHandVertex(direction as Handedness, hand);
-      this.gestureManager.handsVertex.get(direction)?.forEach((vertex) => {
-        this.camera?.drawTips(vertex)
-      })
-      this.camera?.drawHitPoint();
-
-    }
-
-    // get requested operation from gestureManager.
-    // if requestedOperation is staled (controled by version), refresh 
-    const gestureManager = this.gestureManager;
-    gestureManager.version = (gestureManager.version + 1) % 8;
-    gestureManager.gestures.forEach((gesture) => {
-      let requestedOperations: Record<OperationKey, OperationRecord> | undefined;
-
-      if (gesture.operationsRequest && gesture.operationsRequest.length > 0) {
-        requestedOperations = {};
-        for (const key of gesture.operationsRequest) {
-          let value: any;
-          const record = gestureManager.sharedOperations.get(key)
-
-          if (record) {
-            if (record.version !== gestureManager.version) {
-              record.value = record.operation();
-              record.version++;
-              gestureManager.sharedOperations.set(key, record)
-              value = record.value;
-            } else {
-              value = record.value
-            }
-            requestedOperations[key] = value;
-          }
-        }
-
-      }
-
-      const det = gesture.determinant(hands, requestedOperations)
-      if (det) {
-        this.camera?.createHitPoint(det, gesture.triggerPointColor || '#000000');
-      }
-    })
+    return hands
   }
-
 }

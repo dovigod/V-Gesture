@@ -5,8 +5,10 @@ import { getOperationReciept } from '../operation'
 import { FunctionOperationReciept, Handedness, HandVertex, OperationReciept, OperationRecord, VariableOperationReciept } from "../types";
 import { getVertex } from "../operation/operations";
 import type { Hand } from "@tensorflow-models/hand-pose-detection";
+import { protect } from "../utils/validation/trap";
 
 
+const $$setterAccessKey = Symbol('Gesture-manager')
 const SUPPORTING_VERTEX = {
   'thumb_tip': true,
   'index_finger_tip': true,
@@ -33,6 +35,8 @@ export class GestureManager {
     this.handsVertex.set(Handedness.LEFT, new Map());
     this.handsVertex.set(Handedness.RIGHT, new Map());
     this.version = 0;
+    return protect(this, $$setterAccessKey) as GestureManager
+
   }
 
   has(key: string) {
