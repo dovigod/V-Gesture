@@ -43,7 +43,6 @@ export class HandDetector {
     ).catch(error => {
       throw new VGestureError(ERROR_TYPE.PREDICTION, 'estimateHands', error)
     })
-
     if (!(hands instanceof Array)) {
       detector?.dispose();
       this._detector = createMutationEnvelop($$setterAccessKey, null);

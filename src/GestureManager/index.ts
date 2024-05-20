@@ -119,7 +119,7 @@ export class GestureManager {
   }
 
   /**
-   * creates operationRecords and save.
+   * creates operationRecords for caching.
    */
   private _registerOperation(requestingOperations: OperationKey[], usedHand: Handedness) {
 
