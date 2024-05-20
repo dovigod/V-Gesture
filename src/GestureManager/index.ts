@@ -69,10 +69,26 @@ export class GestureManager {
 
 
   dispose(gestureName: string) {
+    const gesture = this.gestures.get(gestureName);
+    // clean up from shared Operation
+    if (gesture?.operationsRequest) {
+      for (const operationKey of gesture.operationsRequest) {
+        const operationRecord = this.sharedOperations.get(operationKey);
+        if (operationRecord) {
+          operationRecord.used -= 1;
+          if (operationRecord.used <= 0) {
+            this.sharedOperations.delete(operationKey)
+          }
+        }
+      }
+    }
     const disposeFunc = this.gestureGC.get(gestureName);
     if (typeof disposeFunc === 'function') {
       disposeFunc()
     }
+    this.gestureGC.delete(gestureName);
+    this.gestures.delete(gestureName)
+
   }
   disposeAll() {
     this.gestureGC.forEach((func: () => void) => {
@@ -80,6 +96,9 @@ export class GestureManager {
         func()
       }
     })
+    this.gestures.clear();
+    this.gestureGC.clear();
+    this.sharedOperations.clear()
   }
 
   updateHandVertex(handDirection: Handedness, hand: Hand) {

@@ -35,7 +35,7 @@ export class HandDetector {
 
     const detector = this._detector;
     if (!detector || !this._initialized) {
-      throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, 'HandPost Detector not initialized')
+      throw new VGestureError(ERROR_TYPE.VALIDATION, 'HandDetector.predict', 'HandPost Detector not initialized')
     }
     const hands = await detector?.estimateHands(
       camera.video,
@@ -49,7 +49,7 @@ export class HandDetector {
       this._detector = createMutationEnvelop($$setterAccessKey, null);
       camera.close()
       // hoist up closing to V-gesture
-      throw new VGestureError(ERROR_TYPE.PREDICTION, arguments.callee.name, `Prediction failed. expected prediction return type to be array but got ${typeof hands}`)
+      throw new VGestureError(ERROR_TYPE.PREDICTION, 'HandDetector.predict', `Prediction failed. expected prediction return type to be array but got ${typeof hands}`)
     }
 
     if (hands.length === 0) {

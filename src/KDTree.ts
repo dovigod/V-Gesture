@@ -29,7 +29,7 @@ export class KDTree {
   constructor(data: ElementBoundary[], dimension = 2, _depth = 0) {
 
     if (dimension > MAXIMUM_SUPPORTED_DIMENSION) {
-      throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, 'Unable to construct K-d tree. Unsupported Dimension');
+      throw new VGestureError(ERROR_TYPE.VALIDATION, 'KDTree.constructor', 'Unable to construct K-d tree. Unsupported Dimension');
     }
 
     this.data = data;
@@ -105,7 +105,7 @@ function sort(data: ElementBoundary[], axis: number) {
   }
 
 
-  throw new VGestureError(ERROR_TYPE.VALIDATION, arguments.callee.name, `UnSupported axis: ${axis}`)
+  throw new VGestureError(ERROR_TYPE.VALIDATION, 'KDTree.sort', `UnSupported axis: ${axis}`)
 }
 
 

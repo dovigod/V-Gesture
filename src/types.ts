@@ -69,3 +69,10 @@ export enum ERROR_TYPE {
   UNSUPPORT = 'unsupport-error',
   NOT_ALLOWED = 'not-allowed-error'
 }
+
+export enum SESSION_STATE {
+  IDLE = 'idle',
+  READY = 'ready',
+  RUNNING = 'running',
+  FINISHED = 'finished'
+}
