@@ -193,7 +193,7 @@ export class VGesture {
   }
 
   private async _generateGestureTargetCollection() {
-    const PREFIX = 'g-clickable-element'
+    const PREFIX = 'vgesturable'
     const elemBoundaries: ElementBoundary[] = []
     let id = 0;
 
@@ -201,7 +201,7 @@ export class VGesture {
       // traverse from  Dom tree, rooting from body node, find all elems with gClickable specified elements
       // create kdtree to handle event target domain
       traverse(document.body, (elem) => {
-        if ((elem as HTMLElement).hasAttribute('gClickable')) {
+        if ((elem as HTMLElement).hasAttribute('vgesturable')) {
           const clickableElem = elem as HTMLElement
           const { top, left, width, height } = clickableElem.getBoundingClientRect();
           let elemId = clickableElem.id;
