@@ -16,9 +16,9 @@
  */
 import * as scatter from 'scatter-gl';
 import * as params from './params';
-import { ERROR_TYPE, Helper, Tip, type Color } from '../types';
-import { CANVAS_ELEMENT_ID, DEFAULT_HIT_POINT_COLOR, DEFAULT_HIT_POINT_SIZE, DEFAULT_TIP_VERTEX_COLOR, DEFAULT_TIP_VERTEX_SIZE, DEFAULT_VERTEX_COLOR, DEFAULT_VERTEX_SIZE, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID } from '../constant';
-import { VGestureError } from '../error';
+import { ERROR_TYPE, Helper, Tip, type Color } from '../../types';
+import { CANVAS_ELEMENT_ID, DEFAULT_HIT_POINT_COLOR, DEFAULT_HIT_POINT_SIZE, DEFAULT_TIP_VERTEX_COLOR, DEFAULT_TIP_VERTEX_SIZE, DEFAULT_VERTEX_COLOR, DEFAULT_VERTEX_SIZE, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID } from '../../constant';
+import { VGestureError } from '../../error';
 
 
 // These anchor points allow the hand pointcloud to resize according to its

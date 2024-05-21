@@ -94,3 +94,59 @@ export interface Coord2D {
 export interface Tip extends Coord2D {
   name: string;
 }
+export interface HelperConfig {
+  hitpoint?: {
+    color?: Color;
+    size?: number
+  }
+  colors?: {
+    indexTip?: Color;
+    thumbTip?: Color;
+    middleTip?: Color;
+    ringTip?: Color;
+    pinkyTip?: Color;
+    wrist?: Color;
+    thumbCmc?: Color;
+    thumbIp?: Color;
+    indexMcp?: Color;
+    indexPip?: Color;
+    indexDip?: Color;
+    middleMcp?: Color;
+    middlePip?: Color;
+    middleDip?: Color;
+    ringMcp?: Color;
+    ringPip?: Color;
+    ringDip?: Color;
+    pinkyMcp?: Color;
+    pinkyPip?: Color;
+    pinkyDip?: Color;
+  };
+  sizes?: {
+    indexTip?: number;
+    thumbTip?: number;
+    middleTip?: number;
+    ringTip?: number;
+    pinkyTip?: number;
+    wrist?: number;
+    thumbCmc?: number;
+    thumbIp?: number;
+    indexMcp?: number;
+    indexPip?: number;
+    indexDip?: number;
+    middleMcp?: number;
+    middlePip?: number;
+    middleDip?: number;
+    ringMcp?: number;
+    ringPip?: number;
+    ringDip?: number;
+    pinkyMcp?: number;
+    pinkyPip?: number;
+    pinkyDip?: number;
+  }
+}
+export interface VGestureOption {
+  handedness?: Handedness;
+  dataDimension?: 2;
+  disableHelper?: Boolean;
+  helper?: HelperConfig;
+}

@@ -1,6 +1,6 @@
-import { VGestureError } from '../error';
-import { type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE } from '../types'
-import { MAXIMUM_SUPPORTED_DIMENSION } from '../constant';
+import { VGestureError } from '../../error';
+import { type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE } from '../../types'
+import { MAXIMUM_SUPPORTED_DIMENSION } from '../../constant';
 import { KDTree } from './KDTree';
 
 

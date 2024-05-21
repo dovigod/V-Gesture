@@ -1,80 +1,23 @@
 import Fastdom from 'fastdom';
 import fastdomPromiseExtension from 'fastdom/extensions/fastdom-promised'
-import { HandDetector } from './HandDetector';
-import { Camera } from './Camera';
-import { DataDomain } from './DataDomain';
-import { GestureManager } from './GestureManager';
-import { AbstractGesturePlugin } from './Plugins/Plugin';
+import { HandDetector } from './models/HandDetector';
+import { Camera } from './models/Camera';
+import { DataDomain } from './models/DataDomain';
+import { GestureManager } from './models/GestureManager';
+import { AbstractGesturePlugin } from './plugins/Plugin';
 import { VGestureError } from './error';
 import { traverse } from './utils/dom/traverse';
 import { error, warn } from './utils/console'
 import { CANVAS_ELEMENT_ID, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER_ELEMENT_ID, VIDEO_ELEMENT_ID, WRAPPER_ELEMENT_ID } from './constant'
 import { ERROR_TYPE, SESSION_STATE, Handedness } from './types'
 import type { OperationKey } from './Gestures/Gesture';
-import type { Boundary2D, ElementBoundary, Color, OperationRecord, Helper } from './types';
-import { protect } from './utils/validation/trap';
-
+import type { Boundary2D, ElementBoundary, OperationRecord, Helper, VGestureOption } from './types';
 
 
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
 const $$driverKey = Symbol('driverKey');
 
-interface HelperConfig {
-  hitpoint?: {
-    color?: Color;
-    size?: number
-  }
-  colors?: {
-    indexTip?: Color;
-    thumbTip?: Color;
-    middleTip?: Color;
-    ringTip?: Color;
-    pinkyTip?: Color;
-    wrist?: Color;
-    thumbCmc?: Color;
-    thumbIp?: Color;
-    indexMcp?: Color;
-    indexPip?: Color;
-    indexDip?: Color;
-    middleMcp?: Color;
-    middlePip?: Color;
-    middleDip?: Color;
-    ringMcp?: Color;
-    ringPip?: Color;
-    ringDip?: Color;
-    pinkyMcp?: Color;
-    pinkyPip?: Color;
-    pinkyDip?: Color;
-  };
-  sizes?: {
-    indexTip?: number;
-    thumbTip?: number;
-    middleTip?: number;
-    ringTip?: number;
-    pinkyTip?: number;
-    wrist?: number;
-    thumbCmc?: number;
-    thumbIp?: number;
-    indexMcp?: number;
-    indexPip?: number;
-    indexDip?: number;
-    middleMcp?: number;
-    middlePip?: number;
-    middleDip?: number;
-    ringMcp?: number;
-    ringPip?: number;
-    ringDip?: number;
-    pinkyMcp?: number;
-    pinkyPip?: number;
-    pinkyDip?: number;
-  }
-}
-interface VGestureOption {
-  handedness?: Handedness;
-  dataDimension?: 2;
-  disableHelper?: Boolean;
-  helper?: HelperConfig;
-}
+
 
 export class VGesture {
   public gestureManager: GestureManager

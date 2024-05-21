@@ -1,6 +1,6 @@
-import { VGestureError } from '../error';
-import { type Point, type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE } from '../types'
-import { getRawDistance, getCloserDistance } from '../utils/math'
+import { VGestureError } from '../../error';
+import { type Point, type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE } from '../../types'
+import { getRawDistance, getCloserDistance } from '../../utils/math'
 
 const MAXIMUM_SUPPORTED_DIMENSION = 3;
 export class KDTree {

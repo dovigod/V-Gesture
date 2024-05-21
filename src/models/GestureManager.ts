@@ -1,5 +1,5 @@
 import { AbstractGesture, OperationKey } from "../Gestures/Gesture";
-import type { AbstractGesturePlugin } from "../Plugins/Plugin";
+import type { AbstractGesturePlugin } from "../plugins/Plugin";
 import { warn } from "../utils/console";
 import { getOperationReciept } from '../operation'
 import { FunctionOperationReciept, Handedness, HandVertex, OperationReciept, OperationRecord, VariableOperationReciept } from "../types";
