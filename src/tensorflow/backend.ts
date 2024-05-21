@@ -3,14 +3,7 @@ import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 import '@tensorflow/tfjs-backend-webgl';
 tfjsWasm.setWasmPaths(
   `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`);
-
-import * as handPoseDetection from '@tensorflow-models/hand-pose-detection';
-import type { MediaPipeHandsMediaPipeModelConfig } from '@tensorflow-models/hand-pose-detection';
-
 import '@tensorflow/tfjs-backend-webgl';
-import * as handdetection from '@tensorflow-models/hand-pose-detection';
-import fastdomPromiseExtension from 'fastdom/extensions/fastdom-promised'
-import Fastdom from 'fastdom';
 
 
 const TUNABLE_FLAG_VALUE_RANGE_MAP = {

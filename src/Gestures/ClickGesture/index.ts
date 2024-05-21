@@ -2,7 +2,7 @@ import { Hand } from '@tensorflow-models/hand-pose-detection'
 import type { AbstractGesture, OperationKey } from '../Gesture'
 import { Handedness, Vector2D } from '../../types';
 import { ClickGestureEvent } from './ClickGestureEvent'
-import { DataDomain } from '../../DataDomain';
+import type { DataDomain } from '../../models/DataDomain';
 
 export interface ClickGestureConfig {
   dispatchInterval?: number;

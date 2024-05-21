@@ -2,7 +2,7 @@ import type { HandDetector as HandPoseDetector } from "@tensorflow-models/hand-p
 import { createDetector } from "../tensorflow/detector";
 import { setBackendAndEnvFlags } from "../tensorflow/backend";
 import { error } from "../utils/console";
-import { Camera } from "../Camera";
+import { Camera } from "../models/Camera";
 import { protect, createMutationEnvelop } from "../utils/validation/trap";
 import { VGestureError } from "../error";
 import { ERROR_TYPE } from '../types'

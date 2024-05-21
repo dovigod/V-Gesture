@@ -1,5 +1,5 @@
 import { VGesture } from './VGesture'
-import { ClickGesturePlugin } from './Plugins/ClickGesturePlugin'
+import { ClickGesturePlugin } from './plugins/ClickGesturePlugin'
 // import { Handedness } from './types';
 async function init() {
   const vGesture = new VGesture({
