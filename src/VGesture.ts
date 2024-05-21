@@ -201,6 +201,8 @@ export class VGesture {
       return;
     }
 
+
+
     // update hand vertex
     for (const hand of hands) {
       const direction = hand.handedness === 'Right' ? Handedness.LEFT : Handedness.RIGHT;
@@ -310,7 +312,7 @@ export class VGesture {
     video.style.position = 'absolute';
     video.style.transform = 'scaleX(-1)'
     canvas.style.zIndex = '99999';
-    canvas.style.position = 'absolute';
+    canvas.style.position = 'fixed';
 
     wrapper.appendChild(leftHandContainer);
     wrapper.appendChild(rightHandContainer)

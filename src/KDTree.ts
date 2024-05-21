@@ -1,5 +1,5 @@
 import { VGestureError } from './error';
-import { type Point, type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE } from './types'
+import { type Point, type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE, Boundary } from './types'
 import { getRawDistance, getCloserDistance } from './utils/math'
 
 const MAXIMUM_SUPPORTED_DIMENSION = 3;
@@ -53,6 +53,7 @@ export class KDTree {
 
   emit(pivot: Vector2D | Vector3D) {
     const closestNode = this.searchClosest(pivot)
+
     if (closestNode) {
       if (pivot[0] >= closestNode.boundary[0] - closestNode.boundary[2] &&
         pivot[0] <= closestNode.boundary[0] + closestNode.boundary[2] &&
@@ -73,13 +74,14 @@ export class KDTree {
     if (!self) {
       return null;
     }
-
     const axis = this.axis;
 
     let nextSubTree: KDTree | null = null;
     let alterateSubTree: KDTree | null = null;
 
-    if (pivot[axis] < self.root.boundary[axis]) {
+    const rootAxisValue = self.root.boundary[axis];
+
+    if (pivot[axis] < rootAxisValue) {
       nextSubTree = self.left;
       alterateSubTree = self.right
     } else {
@@ -90,11 +92,13 @@ export class KDTree {
     let closest = getCloserDistance(pivot, nextSubTree?._search(nextSubTree!, pivot)!, self.root)
 
     //search point and spliting point
-    if (getRawDistance(pivot, closest.boundary) > Math.abs(pivot[axis] - self.root.boundary[axis])) {
+    if (getRawDistance(pivot, closest.boundary) > Math.abs(pivot[axis] - rootAxisValue)) {
       closest = getCloserDistance(pivot, alterateSubTree?._search(alterateSubTree!, pivot)!, closest)
     }
     return closest as ElementBoundary
   }
+
+
 }
 
 function sort(data: ElementBoundary[], axis: number) {
