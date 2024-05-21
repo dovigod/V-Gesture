@@ -12,6 +12,7 @@ import { CANVAS_ELEMENT_ID, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER
 import { ERROR_TYPE, SESSION_STATE, Handedness } from './types'
 import type { OperationKey } from './Gestures/Gesture';
 import type { Boundary2D, ElementBoundary, OperationRecord, Helper, VGestureOption } from './types';
+import { Stage } from './models/Stage';
 
 
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
@@ -25,6 +26,7 @@ export class VGesture {
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
   private camera: Camera | null = null;
+  private stage: Stage | null = null;
 
   private sessionState: SESSION_STATE;
   private frameId: number | null = null;
@@ -62,9 +64,10 @@ export class VGesture {
 
     // setup camera and detector model
     this.detector = new HandDetector();
-    this.camera = new Camera(this.helper)
+    this.camera = await Camera.setupCamera({ targetFPS: 60 }) as Camera;
+    this.stage = new Stage(this.helper);
 
-    await Camera.setupCamera({ targetFPS: 60 });
+
     await this.detector.initialize();
 
     this.initialized = true;
@@ -97,6 +100,7 @@ export class VGesture {
       cancelAnimationFrame(this.frameId);
     }
     this.camera!.close();
+    this.stage!.disconnect()
     this.gestureManager.disposeAll();
     this._cleanStartedElems();
     this.initialized = false;
@@ -124,11 +128,17 @@ export class VGesture {
 
     const detector = this.detector!;
     const camera = this.camera!;
-    const gestureManager = this.gestureManager
+    const stage = this.stage!;
+    const gestureManager = this.gestureManager;
+
+    if (!camera.ready) {
+      return;
+    }
 
     // for smooth vanishing
-    camera.clearCtx();
-    camera.drawHitPoint();
+    stage.clearCtx();
+    // stage.drawVideo(camera.video)
+    stage.drawHitPoint();
 
     // predict result
     let hands;
@@ -146,16 +156,14 @@ export class VGesture {
       return;
     }
 
-
-
     // update hand vertex
     for (const hand of hands) {
       const direction = hand.handedness === 'Right' ? Handedness.LEFT : Handedness.RIGHT;
       gestureManager.updateHandVertex(direction as Handedness, hand);
       gestureManager.handsVertex.get(direction)?.forEach((vertex) => {
-        camera.drawTips(vertex)
+        stage.drawTips(vertex)
       })
-      camera.drawHitPoint();
+      stage.drawHitPoint();
     }
 
     // get requested operation from gestureManager.
@@ -186,7 +194,7 @@ export class VGesture {
 
       const det = gesture.determinant(hands, requestedOperations)
       if (det) {
-        this.camera?.createHitPoint(det);
+        stage.createHitPoint(det);
       }
     })
 
@@ -252,11 +260,13 @@ export class VGesture {
     wrapper.style.left = '0px';
     wrapper.style.zIndex = '99999';
     video.playsInline = true;
+    video.muted = true;
     video.style.visibility = 'hidden';
     video.style.position = 'absolute';
     video.style.transform = 'scaleX(-1)'
     canvas.style.zIndex = '99999';
     canvas.style.position = 'fixed';
+    canvas.style.display = 'block'
 
     wrapper.appendChild(leftHandContainer);
     wrapper.appendChild(rightHandContainer)
