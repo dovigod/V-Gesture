@@ -40,16 +40,15 @@ limitations under the License.
       body {
         margin: 0;
         padding: 0;
-        overflow: hidden;
       }
       #pin {
         z-index: 999;
       }
-      #stats {
-      }
+
       #main {
         position: relative;
         margin: 0;
+        min-height: 300vh;
       }
       #canvas-wrapper {
         position: absolute;
@@ -61,7 +60,7 @@ limitations under the License.
       .btn {
         padding: 10px;
         background-color: green;
-        position: fixed;
+        position: relative;
       }
 
       #btn0 {
@@ -80,9 +79,14 @@ limitations under the License.
         left: 102px;
       }
       #btn3 {
-        background-color: plum;
-        top: 0px;
-        left: 10px;
+        background-color: red;
+        top: 900px;
+        left: 300px;
+      }
+      #btn4 {
+        background-color: yellow;
+        top: 1200px;
+        left: 500px;
       }
     </style>
   </head>
@@ -90,15 +94,31 @@ limitations under the License.
     <div id="stats"></div>
     <div id="main">
       <div class="container">
-        <button id="btn0" class="btn" gClickable onclick="alert('clicked!')">
+        <button id="btn0" class="btn" gClickable onclick="alert('clicked! 0')">
           Click ME!!!
         </button>
         <div>
-          <button id="btn1" class="btn" gClickable>Click ME!!!</button>
+          <button
+            id="btn1"
+            class="btn"
+            gClickable
+            onclick="alert('clicked! 1')"
+          >
+            Click ME!!! 1
+          </button>
         </div>
-        <button id="btn2" class="btn" gClickable>Click ME!!!</button>
+        <button id="btn2" class="btn" gClickable onclick="alert('clicked! 2')">
+          Click ME!!! 2
+        </button>
       </div>
     </div>
+    <button id="btn3" class="btn" gClickable onclick="alert('clicked!')">
+      Scroll and Click ME!!! 3
+    </button>
+
+    <button id="btn4" class="btn" gClickable onclick="alert('clicked!')">
+      Scroll and Click ME!!! 4
+    </button>
   </body>
   <script type="module" src="/src/main.ts"></script>
 </html>

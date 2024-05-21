@@ -15,8 +15,9 @@ async function init() {
         size: 0
       }
     },
-    disableHelper: true
+
   });
+
 
   await vGesture.initialize();
   const clickGesturePlugin = new ClickGesturePlugin({

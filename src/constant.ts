@@ -1,5 +1,6 @@
 import type { Color } from "./types";
 
+export const MAXIMUM_SUPPORTED_DIMENSION = 3;
 export const FUNCTION_NOTATION = 'func::';
 export const VARIABLE_NOTATION = 'var::';
 export const WRAPPER_ELEMENT_ID = 'vGesture-canvas-wrapper'

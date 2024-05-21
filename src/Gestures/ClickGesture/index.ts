@@ -1,8 +1,8 @@
 import { Hand } from '@tensorflow-models/hand-pose-detection'
 import type { AbstractGesture, OperationKey } from '../Gesture'
-import { Color, Handedness } from '../../types';
-import { KDTree } from '../../KDTree';
+import { Handedness, Vector2D } from '../../types';
 import { ClickGestureEvent } from './ClickGestureEvent'
+import { DataDomain } from '../../DataDomain';
 
 export interface ClickGestureConfig {
   dispatchInterval?: number;
@@ -31,17 +31,31 @@ export class ClickGesture implements AbstractGesture {
     this.usedHand = config?.usedHand || Handedness.LEFT
   }
 
-  handler(event: unknown, gestureCollection: KDTree, triggerHelperElem?: HTMLDivElement) {
+  handler(event: unknown, dataDomain: DataDomain, triggerHelperElem?: HTMLDivElement) {
     const e = event as ClickGestureEvent;
     if (triggerHelperElem) {
       triggerHelperElem.style.top = e.triggerPoint.y + 'px'
       triggerHelperElem.style.left = e.triggerPoint.x + 'px'
     }
-    const nodeId = gestureCollection.emit([e.triggerPoint.x, e.triggerPoint.y])
-    if (nodeId) {
-      const node = document.getElementById(nodeId);
-      node?.dispatchEvent(new Event('click'));
+
+    const pivot = [e.triggerPoint.x, e.triggerPoint.y] as Vector2D
+    const closestNode = dataDomain.searchClosest(pivot)
+
+    // current event is held inner boundary of closestNode
+    if (closestNode) {
+      if (pivot[0] >= closestNode.boundary[0] - closestNode.boundary[2] &&
+        pivot[0] <= closestNode.boundary[0] + closestNode.boundary[2] &&
+        pivot[1] >= closestNode.boundary[1] - closestNode.boundary[3] &&
+        pivot[1] <= closestNode.boundary[1] + closestNode.boundary[3]
+      ) {
+        const nodeId = closestNode.id;
+        if (nodeId) {
+          const node = document.getElementById(nodeId);
+          node?.dispatchEvent(new Event('click'));
+        }
+      }
     }
+
   }
 
   determinant(hands: Hand[], requestedOperations: Record<string, any>): any | boolean {

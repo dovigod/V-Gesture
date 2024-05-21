@@ -2,7 +2,7 @@ import Fastdom from 'fastdom';
 import fastdomPromiseExtension from 'fastdom/extensions/fastdom-promised'
 import { HandDetector } from './HandDetector';
 import { Camera } from './Camera';
-import { KDTree } from './KDTree';
+import { DataDomain } from './DataDomain';
 import { GestureManager } from './GestureManager';
 import { AbstractGesturePlugin } from './Plugins/Plugin';
 import { VGestureError } from './error';
@@ -12,6 +12,8 @@ import { CANVAS_ELEMENT_ID, LEFT_HAND_CONTAINER_ELEMENT_ID, RIGHT_HAND_CONTAINER
 import { ERROR_TYPE, SESSION_STATE, Handedness } from './types'
 import type { OperationKey } from './Gestures/Gesture';
 import type { Boundary2D, ElementBoundary, Color, OperationRecord, Helper } from './types';
+import { protect } from './utils/validation/trap';
+
 
 
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
@@ -76,7 +78,7 @@ interface VGestureOption {
 
 export class VGesture {
   public gestureManager: GestureManager
-  public gestureTargetCollection!: KDTree
+  public gestureTargetCollection!: DataDomain
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
   private camera: Camera | null = null;
@@ -201,6 +203,8 @@ export class VGesture {
       return;
     }
 
+
+
     // update hand vertex
     for (const hand of hands) {
       const direction = hand.handedness === 'Right' ? Handedness.LEFT : Handedness.RIGHT;
@@ -280,8 +284,7 @@ export class VGesture {
           elemBoundaries.push(ElementBoundary)
         }
       })
-      const gestureTargetCollection = new KDTree(elemBoundaries);
-      this.gestureTargetCollection = new Proxy(gestureTargetCollection, { set: () => false })
+      this.gestureTargetCollection = new DataDomain(elemBoundaries);
     })
   }
 
@@ -310,7 +313,7 @@ export class VGesture {
     video.style.position = 'absolute';
     video.style.transform = 'scaleX(-1)'
     canvas.style.zIndex = '99999';
-    canvas.style.position = 'absolute';
+    canvas.style.position = 'fixed';
 
     wrapper.appendChild(leftHandContainer);
     wrapper.appendChild(rightHandContainer)
