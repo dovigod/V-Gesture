@@ -1,6 +1,6 @@
 import type { Hand } from "@tensorflow-models/hand-pose-detection";
-import { KDTree } from "../KDTree";
-import { Color, Handedness } from "../types";
+import { Handedness } from "../types";
+import { DataDomain } from "../DataDomain";
 
 export type OperationKey = `${"func::" | "var::"}${string}`
 export interface AbstractGesture {
@@ -23,7 +23,7 @@ export interface AbstractGesture {
    * handler function when %eventName% is emitted to Window object
    * Normally used for handling events or to dispatch native event as a chain
    */
-  handler(event: unknown, gestureCollection: KDTree, triggerHelperElem?: HTMLElement): void;
+  handler(event: unknown, dataDomain: DataDomain, triggerHelperElem?: HTMLElement): void;
 
   /**
    * provided operations will be cached and forwarded during determinant call.

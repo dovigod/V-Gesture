@@ -19,9 +19,6 @@ async function init() {
   });
 
 
-  const z = document.getElementById('btn3');
-  console.log(z?.offsetTop)
-  window.x = vGesture
   await vGesture.initialize();
   const clickGesturePlugin = new ClickGesturePlugin({
   })

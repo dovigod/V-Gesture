@@ -1,6 +1,6 @@
-import { VGestureError } from './error';
-import { type Point, type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE, Boundary } from './types'
-import { getRawDistance, getCloserDistance } from './utils/math'
+import { VGestureError } from '../error';
+import { type Point, type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE } from '../types'
+import { getRawDistance, getCloserDistance } from '../utils/math'
 
 const MAXIMUM_SUPPORTED_DIMENSION = 3;
 export class KDTree {
@@ -49,21 +49,6 @@ export class KDTree {
     if (this.size - (this.m + 1) > 0) {
       this.right = new KDTree(this.data.slice(this.m + 1), this.depth + 1)
     }
-  }
-
-  emit(pivot: Vector2D | Vector3D) {
-    const closestNode = this.searchClosest(pivot)
-
-    if (closestNode) {
-      if (pivot[0] >= closestNode.boundary[0] - closestNode.boundary[2] &&
-        pivot[0] <= closestNode.boundary[0] + closestNode.boundary[2] &&
-        pivot[1] >= closestNode.boundary[1] - closestNode.boundary[3] &&
-        pivot[1] <= closestNode.boundary[1] + closestNode.boundary[3]
-      ) {
-        return closestNode.id
-      }
-    }
-    return null
   }
 
   searchClosest(pivot: Vector2D | Vector3D) {
