@@ -9,8 +9,7 @@
   "exports": {
     ".": {
       "import": "./dist/vgesture.js"
-    },
-    "./plugins": "./dist/plugins/index.js"
+    }
   },
   "repository": {
     "type": "git",
