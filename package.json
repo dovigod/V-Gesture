@@ -12,7 +12,6 @@
     },
     "./plugins": "./dist/plugins/index.js"
   },
-  "types": "./dist/types/*",
   "repository": {
     "type": "git",
     "url": "https://github.com/dovigod/V-Gesture"
