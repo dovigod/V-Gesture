@@ -192,7 +192,8 @@ export class VGesture {
 
       const det = gesture.determinant(hands, requestedOperations)
       if (det) {
-        stage.createHitPoint(det);
+        if ('x' in det && 'y' in det)
+          stage.createHitPoint(det);
       }
     })
 
