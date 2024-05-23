@@ -1,4 +1,4 @@
-import { Hand } from '@tensorflow-models/hand-pose-detection'
+import type { Hand } from '@tensorflow-models/hand-pose-detection'
 import type { AbstractGesture, OperationKey } from '../Gesture'
 import { Handedness, Vector2D } from '../../types';
 import { ClickGestureEvent } from './ClickGestureEvent'
