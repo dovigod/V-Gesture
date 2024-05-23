@@ -1,7 +1,8 @@
 {
-  "name": "v-gesture",
+  "name": "vgesture",
   "private": false,
   "version": "0.0.4",
+  "author": "dovigod",
   "type": "module",
   "main": "./dist/vgesture.js",
   "module": "./dist/vgesture.js",
