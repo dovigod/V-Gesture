@@ -3,6 +3,7 @@
   "private": false,
   "version": "0.0.16",
   "author": "dovigod",
+  "description": "Typescript library which gives ability to interact with DOM elements with hand gestures via webcam.",
   "type": "module",
   "main": "./build/vgesture.js",
   "module": "./build/vgesture.js",
