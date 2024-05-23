@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.11](https://github.com/dovigod/V-Gesture/compare/v0.0.10...v0.0.11) (2024-05-23)
+
+
+### Others
+
+* testing ([c9a2346](https://github.com/dovigod/V-Gesture/commit/c9a23468e02c4ae7b7cd034e37a73b07de6eda5c))
+
 ### [0.0.10](https://github.com/dovigod/V-Gesture/compare/v0.0.9...v0.0.10) (2024-05-23)
 
 
