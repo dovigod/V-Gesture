@@ -11,3 +11,4 @@ vite.config.js
 tsconfig.json
 draft.txt
 node_modules
+.DS_Store

@@ -1,7 +1,7 @@
 {
   "name": "@dvgs/vgesture",
   "private": false,
-  "version": "0.0.7",
+  "version": "0.0.12",
   "author": "dovigod",
   "type": "module",
   "main": "./dist/vgesture.js",
@@ -12,17 +12,14 @@
     },
     "./plugins": "./dist/plugins/index.js"
   },
-  "types": "./dist/types/*",
   "repository": {
     "type": "git",
     "url": "https://github.com/dovigod/V-Gesture"
   },
   "files": [
     "dist",
-    "LICENSE",
     "package.json",
-    "readme.md",
-    "src"
+    "readme.md"
   ],
   "browserslist": [
     "chrome > 53, edge > 12 , safari > 11, firefox > 36, opera > 40, ChromeAndroid >= 124, ios_saf >= 11, Samsung >= 6.2, op_mob >= 80, UCAndroid >= 15.5 , Android >= 124, FirefoxAndroid >=125, and_qq >=14.9 ,kaios >= 3.1 , not ie all, not op_mini all"

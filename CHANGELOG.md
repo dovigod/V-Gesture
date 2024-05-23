@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.11](https://github.com/dovigod/V-Gesture/compare/v0.0.10...v0.0.11) (2024-05-23)
+
+
+### Others
+
+* testing ([c9a2346](https://github.com/dovigod/V-Gesture/commit/c9a23468e02c4ae7b7cd034e37a73b07de6eda5c))
+
+### [0.0.10](https://github.com/dovigod/V-Gesture/compare/v0.0.9...v0.0.10) (2024-05-23)
+
+
+### Others
+
+* where the hell is my dist ([cd2b34a](https://github.com/dovigod/V-Gesture/commit/cd2b34abf7f2a4cd5bf6d654fc25d8292534e6a5))
+
+### [0.0.9](https://github.com/dovigod/V-Gesture/compare/v0.0.8...v0.0.9) (2024-05-23)
+
+
+### Others
+
+* discard src from files ([97b1256](https://github.com/dovigod/V-Gesture/commit/97b1256c1980cf991577724df57a9907e1e38f95))
+
+### [0.0.8](https://github.com/dovigod/V-Gesture/compare/v0.0.7...v0.0.8) (2024-05-23)
+
+
+### Others
+
+* exports for dist renamed ([40811e2](https://github.com/dovigod/V-Gesture/commit/40811e27d939009d62831dae893de093732d1dd2))
+
+### [0.0.7](https://github.com/dovigod/V-Gesture/compare/v0.0.6...v0.0.7) (2024-05-23)
+
+
+### Feature Improvements
+
+* rename packagename with org ([20f1d4b](https://github.com/dovigod/V-Gesture/commit/20f1d4b4f7e84a0f54dbb6099501c5d9d81c26f6))
+
 ### [0.0.6](https://github.com/dovigod/V-Gesture/compare/v0.0.5...v0.0.6) (2024-05-23)
 
 
