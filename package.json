@@ -10,7 +10,7 @@
     ".": {
       "import": "./dist/vgesture.js"
     },
-    "./plugins/*": "./dist/plugins/*"
+    "./plugins": "./dist/plugins/index.js"
   },
   "types": "./dist/types/*",
   "repository": {
