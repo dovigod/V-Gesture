@@ -1,8 +1,8 @@
 // @ts-nocheck
 /* @ts-ignore */
 // import { VGesture } from '../dist/vgesture'
-import { VGesture } from './VGesture'
-import { ClickGesturePlugin } from '../dist/plugins'
+import { VGesture } from '../build/vgesture'
+import { ClickGesturePlugin } from '../build/plugins'
 // import { ClickGesturePlugin } from '../dist/plugins'
 // import { Handedness } from './types';
 async function init() {
