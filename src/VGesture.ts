@@ -133,7 +133,6 @@ export class VGesture {
     if (!camera.ready) {
       return;
     }
-
     // for smooth vanishing
     stage.clearCtx();
     // stage.drawVideo(camera.video)

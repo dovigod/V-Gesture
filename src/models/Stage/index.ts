@@ -113,7 +113,7 @@ export class Stage {
   }
 
   clearCtx() {
-    this.ctx.clearRect(0, 0, document.body.clientWidth * 2, document.body.clientHeight * 2);
+    this.ctx.clearRect(0, 0, this.canvas.width * 2, this.canvas.height * 2);
   }
 
   drawPoint(x: number, y: number, r: number) {
