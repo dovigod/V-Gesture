@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5](https://github.com/dovigod/V-Gesture/compare/v0.0.4...v0.0.5) (2024-05-23)
+
+
+### Feature Improvements
+
+* package name conflict change v-gesture to vgesture ([b742dae](https://github.com/dovigod/V-Gesture/commit/b742dae706f9722cd2357bf7dcd2bf15b8c216e2))
+
 ### [0.0.4](https://github.com/dovigod/V-Gesture/compare/v0.0.3...v0.0.4) (2024-05-23)
 
 ### [0.0.3](https://github.com/dovigod/V-Gesture/compare/v0.0.2...v0.0.3) (2024-05-23)
