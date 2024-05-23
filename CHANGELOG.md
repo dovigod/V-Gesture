@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/dovigod/V-Gesture/compare/v0.0.7...v0.0.8) (2024-05-23)
+
+
+### Others
+
+* exports for dist renamed ([40811e2](https://github.com/dovigod/V-Gesture/commit/40811e27d939009d62831dae893de093732d1dd2))
+
 ### [0.0.7](https://github.com/dovigod/V-Gesture/compare/v0.0.6...v0.0.7) (2024-05-23)
 
 
