@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.7](https://github.com/dovigod/V-Gesture/compare/v0.0.6...v0.0.7) (2024-05-23)
+
+
+### Feature Improvements
+
+* rename packagename with org ([20f1d4b](https://github.com/dovigod/V-Gesture/commit/20f1d4b4f7e84a0f54dbb6099501c5d9d81c26f6))
+
 ### [0.0.6](https://github.com/dovigod/V-Gesture/compare/v0.0.5...v0.0.6) (2024-05-23)
 
 
