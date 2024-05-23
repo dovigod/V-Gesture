@@ -1,2 +1,13 @@
 .github
 .omt.yaml
+src
+.env
+.gitignore
+.versionrc
+converntionalGithubReleaser.mjs
+release.mjs
+rollup.config.js
+vite.config.js
+tsconfig.json
+draft.txt
+node_modules

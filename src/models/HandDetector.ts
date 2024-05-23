@@ -22,7 +22,6 @@ export class HandDetector {
       error('Duplicate HandDetector initialization not allowed')
       return null;
     }
-
     // use wasm-backend
     await setBackendAndEnvFlags({}, '');
 

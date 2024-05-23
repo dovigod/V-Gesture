@@ -1,6 +1,6 @@
 import type { Hand } from "@tensorflow-models/hand-pose-detection";
 import { Handedness } from "../types";
-import { DataDomain } from "../DataDomain";
+import { DataDomain } from "../models/DataDomain";
 
 export type OperationKey = `${"func::" | "var::"}${string}`
 export interface AbstractGesture {

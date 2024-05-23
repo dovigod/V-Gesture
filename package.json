@@ -1,31 +1,71 @@
 {
   "name": "v-gesture",
-  "private": true,
+  "private": "false",
   "version": "0.0.0",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    },
+    "./plugins/*": "./dist/plugins/*"
+  },
+  "types": "./dist/types/*",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dovigod/V-Gesture"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "package.json",
+    "readme.md",
+    "src"
+  ],
+  "browserslist": [
+    "chrome > 53, edge > 12 , safari > 11, firefox > 36, opera > 40, ChromeAndroid >= 124, ios_saf >= 11, Samsung >= 6.2, op_mob >= 80, UCAndroid >= 15.5 , Android >= 124, FirefoxAndroid >=125, and_qq >=14.9 ,kaios >= 3.1 , not ie all, not op_mini all"
+  ],
+  "keywords": [
+    "VGesture",
+    "V-Gesture",
+    "v-gesture",
+    "gesture",
+    "webcam",
+    "gesture",
+    "hand detector",
+    "hand detection",
+    "virtual pointer",
+    "tensorflow",
+    "canvas",
+    "html5"
+  ],
   "scripts": {
-    "dev": "vite --host=0.0.0.0 --port=3000",
-    "build": "tsc && vite build",
+    "dev": "vite --host=0.0.0.0 --port=3000 ",
+    "build": "rollup -c",
     "release": "node ./release.mjs"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.8",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
     "conventional-github-releaser": "^3.1.5",
     "dotenv": "^16.4.5",
+    "path": "^0.12.7",
+    "rollup": "^4.18.0",
+    "rollup-plugin-dts": "^6.1.1",
     "standard-version": "^9.5.0",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
+    "vite-plugin-dts": "^3.9.1",
     "vite-plugin-mkcert": "^1.17.5"
   },
   "dependencies": {
-    "@mediapipe/hands": "^0.4.1675469240",
     "@tensorflow-models/hand-pose-detection": "^2.0.1",
     "@tensorflow/tfjs-backend-wasm": "^4.19.0",
     "@tensorflow/tfjs-backend-webgl": "^4.19.0",
     "@tensorflow/tfjs-converter": "^4.19.0",
     "@tensorflow/tfjs-core": "^4.19.0",
-    "add": "^2.0.6",
-    "fastdom": "^1.0.12",
-    "scatter-gl": "^0.0.13",
-    "three": "^0.164.1"
+    "fastdom": "^1.0.12"
   }
 }

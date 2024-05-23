@@ -3,7 +3,6 @@ import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 import '@tensorflow/tfjs-backend-webgl';
 tfjsWasm.setWasmPaths(
   `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfjsWasm.version_wasm}/dist/`);
-import '@tensorflow/tfjs-backend-webgl';
 
 
 const TUNABLE_FLAG_VALUE_RANGE_MAP = {

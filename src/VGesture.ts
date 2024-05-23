@@ -67,7 +67,6 @@ export class VGesture {
     this.camera = await Camera.setupCamera({ targetFPS: 60 }) as Camera;
     this.stage = new Stage(this.helper);
 
-
     await this.detector.initialize();
 
     this.initialized = true;
