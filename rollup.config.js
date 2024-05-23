@@ -13,7 +13,7 @@ export default [
     },
     output: {
       entryFileNames: "[name].js",
-      dir: "dist",
+      dir: "build",
       format: "es",
     },
     plugins: [
@@ -36,7 +36,7 @@ export default [
     },
     output: {
       entryFileNames: "[name].js",
-      dir: "dist/plugins",
+      dir: "build/plugins",
       format: "es",
     },
     plugins: [
@@ -58,7 +58,7 @@ export default [
     output: {
       entryFileNames: "[name].d.ts",
       format: "es",
-      dir: "dist",
+      dir: "build",
     },
     // external: (id) => !/^[./]/.test(id),
     plugins: [dts()],
@@ -70,7 +70,7 @@ export default [
     output: {
       entryFileNames: "[name].d.ts",
       format: "es",
-      dir: "dist/plugins",
+      dir: "build/plugins",
     },
     // external: (id) => !/^[./]/.test(id),
     plugins: [dts()],

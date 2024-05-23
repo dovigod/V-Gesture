@@ -1,23 +1,23 @@
 {
   "name": "@dvgs/vgesture",
   "private": false,
-  "version": "0.0.12",
+  "version": "0.0.16",
   "author": "dovigod",
   "type": "module",
-  "main": "./dist/vgesture.js",
-  "module": "./dist/vgesture.js",
+  "main": "./build/vgesture.js",
+  "module": "./build/vgesture.js",
   "exports": {
     ".": {
-      "import": "./dist/vgesture.js"
+      "import": "./build/vgesture.js"
     },
-    "./plugins": "./dist/plugins/index.js"
+    "./plugins": "./build/plugins/index.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/dovigod/V-Gesture"
   },
   "files": [
-    "dist",
+    "build",
     "package.json",
     "readme.md"
   ],

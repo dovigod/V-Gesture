@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.16](https://github.com/dovigod/V-Gesture/compare/v0.0.15...v0.0.16) (2024-05-23)
+
+
+### Others
+
+* test ([6873bbb](https://github.com/dovigod/V-Gesture/commit/6873bbb343f5890e84550d39da8c688dfd5c2e42))
+
+### [0.0.15](https://github.com/dovigod/V-Gesture/compare/v0.0.11...v0.0.15) (2024-05-23)
+
+
+### Bug Fixes
+
+* cleraRect will exec with canvas dimension param ([#40](https://github.com/dovigod/V-Gesture/issues/40)) ([b01a4c8](https://github.com/dovigod/V-Gesture/commit/b01a4c807bd3024ee97259df78c3cc9b7be4244f))
+
+
+### Others
+
+* build config changed ([1e691a0](https://github.com/dovigod/V-Gesture/commit/1e691a02ac54ac03df74435ba793f1dfc49070fb))
+* testing ([0d8edf3](https://github.com/dovigod/V-Gesture/commit/0d8edf3b2e2faf19e4eed7acbf183713ba6f2251))
+
 ### [0.0.11](https://github.com/dovigod/V-Gesture/compare/v0.0.10...v0.0.11) (2024-05-23)
 
 
