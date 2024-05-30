@@ -2,7 +2,6 @@ import type { VGesture } from "../../VGesture";
 import type { AbstractGesturePlugin } from '../../plugins/Plugin'
 
 export function register(vGesture: VGesture, plugin: AbstractGesturePlugin) {
-  console.log('hit from register')
   const gestureName = plugin.gesture.name;
   const gestureManager = vGesture.gestureManager;
   if (!gestureManager.gestures.has(gestureName)) {
@@ -16,6 +15,5 @@ export function register(vGesture: VGesture, plugin: AbstractGesturePlugin) {
 }
 
 export function unregister(plugin: AbstractGesturePlugin, handlerFunc: (e: unknown) => void) {
-  console.log('hit from unregi')
   window.removeEventListener(plugin.gesture.eventName, handlerFunc)
 }
