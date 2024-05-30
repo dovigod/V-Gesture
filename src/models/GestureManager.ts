@@ -6,6 +6,7 @@ import { FunctionOperationReciept, Handedness, HandVertex, OperationReciept, Ope
 import { getVertex } from "../operation/operations";
 import type { Hand } from "@tensorflow-models/hand-pose-detection";
 import { protect } from "../utils/validation/trap";
+import { unregister } from "../utils/prebuilt";
 
 
 const $$setterAccessKey = Symbol('Gesture-manager')
@@ -43,7 +44,7 @@ export class GestureManager {
     return this.gestures.has(key)
   }
 
-  register(plugin: AbstractGesturePlugin) {
+  register(plugin: AbstractGesturePlugin, handlerFunc?: (e: unknown) => void) {
     const gestureName = plugin.gesture.name;
     const gestures = this.gestures;
     const gestureGC = this.gestureGC;
@@ -60,7 +61,12 @@ export class GestureManager {
     }
 
     const dispose = () => {
-      plugin.unregister()
+
+      if (plugin.unregister) {
+        plugin.unregister()
+      } else if (handlerFunc) {
+        unregister(plugin, handlerFunc)
+      }
       gestures.delete(gestureName)
     }
     gestures.set(gestureName, plugin.gesture);

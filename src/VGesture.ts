@@ -13,6 +13,8 @@ import { ERROR_TYPE, SESSION_STATE, Handedness } from './types'
 import type { OperationKey } from './Gestures/Gesture';
 import type { Boundary2D, ElementBoundary, OperationRecord, Helper, VGestureOption } from './types';
 import { Stage } from './models/Stage';
+import { register } from './utils/prebuilt';
+import { isValidPlugin } from './utils/validation/plugin';
 
 
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
@@ -112,8 +114,23 @@ export class VGesture {
       warn(`${gestureName} is already registered`);
       return;
     }
-    plugin.register(this);
-    gestureManager.register(plugin)
+
+    let handlerFunc: ((e: unknown) => void) | undefined;
+
+    const isValid = isValidPlugin(plugin)
+    if (!isValid) {
+      throw new VGestureError(ERROR_TYPE.VALIDATION, 'VGesture.register', "Validation Error: plugin doesn't match valid interface")
+    }
+
+    if (plugin.register) {
+      plugin.register(this);
+    } else {
+      const handlerFunc_ = register(this, plugin)!
+      if (handlerFunc_ instanceof Array) {
+        handlerFunc = handlerFunc_[0]
+      }
+    }
+    gestureManager.register(plugin, handlerFunc)
   }
 
   unregister(gestureName: string) {
