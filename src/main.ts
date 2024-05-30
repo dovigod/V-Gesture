@@ -1,10 +1,10 @@
 // @ts-nocheck
 /* @ts-ignore */
-// import { VGesture } from '../dist/vgesture'
-import { VGesture } from '../build/vgesture'
-import { ClickGesturePlugin } from '../build/plugins'
-// import { ClickGesturePlugin } from '../dist/plugins'
+// import { VGesture } from '../build/vgesture'
+// import { ClickGesturePlugin } from '../build/plugins'
 // import { Handedness } from './types';
+import { VGesture } from "./VGesture";
+import { ClickGesturePlugin } from "./plugins";
 async function init() {
   // const vGesture = new VGesture({
   //   helper: {
@@ -31,6 +31,6 @@ async function init() {
 
   vGesture.register(clickGesturePlugin)
   await vGesture.startDetection()
-  // await vGesture.startDetection()
+  // vGesture.endDetection()
 }
 init()
