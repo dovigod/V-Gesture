@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/dovigod/V-Gesture/compare/v1.1.0...v1.1.1) (2024-05-30)
+
+
+### Feature Improvements
+
+* make register & unregister optional for abstractGesturePlugin ([#43](https://github.com/dovigod/V-Gesture/issues/43)) ([1d169b9](https://github.com/dovigod/V-Gesture/commit/1d169b9cb458aa864fc5b320db451d071a2971a1))
+* reflect dom changes to dataDomain ([#44](https://github.com/dovigod/V-Gesture/issues/44)) ([92dbedf](https://github.com/dovigod/V-Gesture/commit/92dbedfa907482dd3a4bc40df68b5f225b520d20))
+
 ## 1.1.0 (2024-05-30)
 
 
