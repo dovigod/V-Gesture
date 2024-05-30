@@ -72520,8 +72520,8 @@ class VGesture {
         _();
     }
     endDetection() {
-        if (!this.initialized) {
-            throw new VGestureError(ERROR_TYPE.VALIDATION, 'VGesture.stopDetection', 'Validation Error: V-Gesture not initialized');
+        if (this.sessionState === SESSION_STATE.FINISHED) {
+            throw new VGestureError(ERROR_TYPE.VALIDATION, 'VGesture.stopDetection', 'Validation Error: Staled session');
         }
         this.sessionState = SESSION_STATE.FINISHED;
         if (this.frameId) {
@@ -72661,6 +72661,7 @@ class VGesture {
         canvas.style.zIndex = '99999';
         canvas.style.position = 'fixed';
         canvas.style.display = 'block';
+        canvas.style.pointerEvents = 'none';
         wrapper.appendChild(leftHandContainer);
         wrapper.appendChild(rightHandContainer);
         wrapper.appendChild(video);
