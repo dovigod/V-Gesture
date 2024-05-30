@@ -155,6 +155,7 @@ class ClickGesture {
 }
 
 class ClickGesturePlugin {
+    // handlerFunc: ((event: unknown) => void) | null = null;
     constructor(config) {
         Object.defineProperty(this, "gesture", {
             enumerable: true,
@@ -162,29 +163,7 @@ class ClickGesturePlugin {
             writable: true,
             value: void 0
         });
-        Object.defineProperty(this, "handlerFunc", {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: null
-        });
         this.gesture = new ClickGesture(config);
-    }
-    register(vGesture) {
-        if (this.handlerFunc) {
-            window.removeEventListener(this.gesture.eventName, this.handlerFunc);
-        }
-        this.handlerFunc = (e) => {
-            this.gesture.handler(e, vGesture.gestureTargetCollection);
-        };
-        window.addEventListener(this.gesture.eventName, this.handlerFunc);
-        return vGesture;
-    }
-    unregister() {
-        if (this.handlerFunc) {
-            window.removeEventListener(this.gesture.eventName, this.handlerFunc);
-            this.handlerFunc = null;
-        }
     }
 }
 

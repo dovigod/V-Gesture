@@ -44,321 +44,6 @@ function getAugmentedNamespace(n) {
 	return a;
 }
 
-var fastdom$1 = {exports: {}};
-
-(function (module) {
-	!(function(win) {
-
-	/**
-	 * Mini logger
-	 *
-	 * @return {Function}
-	 */
-	var debug = function() {};
-
-	/**
-	 * Normalized rAF
-	 *
-	 * @type {Function}
-	 */
-	var raf = win.requestAnimationFrame
-	  || win.webkitRequestAnimationFrame
-	  || win.mozRequestAnimationFrame
-	  || win.msRequestAnimationFrame
-	  || function(cb) { return setTimeout(cb, 16); };
-
-	/**
-	 * Initialize a `FastDom`.
-	 *
-	 * @constructor
-	 */
-	function FastDom() {
-	  var self = this;
-	  self.reads = [];
-	  self.writes = [];
-	  self.raf = raf.bind(win); // test hook
-	}
-
-	FastDom.prototype = {
-	  constructor: FastDom,
-
-	  /**
-	   * We run this inside a try catch
-	   * so that if any jobs error, we
-	   * are able to recover and continue
-	   * to flush the batch until it's empty.
-	   *
-	   * @param {Array} tasks
-	   */
-	  runTasks: function(tasks) {
-	    var task; while (task = tasks.shift()) task();
-	  },
-
-	  /**
-	   * Adds a job to the read batch and
-	   * schedules a new frame if need be.
-	   *
-	   * @param  {Function} fn
-	   * @param  {Object} ctx the context to be bound to `fn` (optional).
-	   * @public
-	   */
-	  measure: function(fn, ctx) {
-	    var task = !ctx ? fn : fn.bind(ctx);
-	    this.reads.push(task);
-	    scheduleFlush(this);
-	    return task;
-	  },
-
-	  /**
-	   * Adds a job to the
-	   * write batch and schedules
-	   * a new frame if need be.
-	   *
-	   * @param  {Function} fn
-	   * @param  {Object} ctx the context to be bound to `fn` (optional).
-	   * @public
-	   */
-	  mutate: function(fn, ctx) {
-	    var task = !ctx ? fn : fn.bind(ctx);
-	    this.writes.push(task);
-	    scheduleFlush(this);
-	    return task;
-	  },
-
-	  /**
-	   * Clears a scheduled 'read' or 'write' task.
-	   *
-	   * @param {Object} task
-	   * @return {Boolean} success
-	   * @public
-	   */
-	  clear: function(task) {
-	    return remove(this.reads, task) || remove(this.writes, task);
-	  },
-
-	  /**
-	   * Extend this FastDom with some
-	   * custom functionality.
-	   *
-	   * Because fastdom must *always* be a
-	   * singleton, we're actually extending
-	   * the fastdom instance. This means tasks
-	   * scheduled by an extension still enter
-	   * fastdom's global task queue.
-	   *
-	   * The 'super' instance can be accessed
-	   * from `this.fastdom`.
-	   *
-	   * @example
-	   *
-	   * var myFastdom = fastdom.extend({
-	   *   initialize: function() {
-	   *     // runs on creation
-	   *   },
-	   *
-	   *   // override a method
-	   *   measure: function(fn) {
-	   *     // do extra stuff ...
-	   *
-	   *     // then call the original
-	   *     return this.fastdom.measure(fn);
-	   *   },
-	   *
-	   *   ...
-	   * });
-	   *
-	   * @param  {Object} props  properties to mixin
-	   * @return {FastDom}
-	   */
-	  extend: function(props) {
-	    if (typeof props != 'object') throw new Error('expected object');
-
-	    var child = Object.create(this);
-	    mixin(child, props);
-	    child.fastdom = this;
-
-	    // run optional creation hook
-	    if (child.initialize) child.initialize();
-
-	    return child;
-	  },
-
-	  // override this with a function
-	  // to prevent Errors in console
-	  // when tasks throw
-	  catch: null
-	};
-
-	/**
-	 * Schedules a new read/write
-	 * batch if one isn't pending.
-	 *
-	 * @private
-	 */
-	function scheduleFlush(fastdom) {
-	  if (!fastdom.scheduled) {
-	    fastdom.scheduled = true;
-	    fastdom.raf(flush.bind(null, fastdom));
-	  }
-	}
-
-	/**
-	 * Runs queued `read` and `write` tasks.
-	 *
-	 * Errors are caught and thrown by default.
-	 * If a `.catch` function has been defined
-	 * it is called instead.
-	 *
-	 * @private
-	 */
-	function flush(fastdom) {
-
-	  var writes = fastdom.writes;
-	  var reads = fastdom.reads;
-	  var error;
-
-	  try {
-	    debug('flushing reads', reads.length);
-	    fastdom.runTasks(reads);
-	    debug('flushing writes', writes.length);
-	    fastdom.runTasks(writes);
-	  } catch (e) { error = e; }
-
-	  fastdom.scheduled = false;
-
-	  // If the batch errored we may still have tasks queued
-	  if (reads.length || writes.length) scheduleFlush(fastdom);
-
-	  if (error) {
-	    debug('task errored', error.message);
-	    if (fastdom.catch) fastdom.catch(error);
-	    else throw error;
-	  }
-	}
-
-	/**
-	 * Remove an item from an Array.
-	 *
-	 * @param  {Array} array
-	 * @param  {*} item
-	 * @return {Boolean}
-	 */
-	function remove(array, item) {
-	  var index = array.indexOf(item);
-	  return !!~index && !!array.splice(index, 1);
-	}
-
-	/**
-	 * Mixin own properties of source
-	 * object into the target.
-	 *
-	 * @param  {Object} target
-	 * @param  {Object} source
-	 */
-	function mixin(target, source) {
-	  for (var key in source) {
-	    if (source.hasOwnProperty(key)) target[key] = source[key];
-	  }
-	}
-
-	// There should never be more than
-	// one instance of `FastDom` in an app
-	var exports = win.fastdom = (win.fastdom || new FastDom()); // jshint ignore:line
-
-	// Expose to CJS & AMD
-	module.exports = exports;
-
-	})( typeof window !== 'undefined' ? window : typeof commonjsGlobal != 'undefined' ? commonjsGlobal : globalThis); 
-} (fastdom$1));
-
-var fastdomExports = fastdom$1.exports;
-var Fastdom = /*@__PURE__*/getDefaultExportFromCjs(fastdomExports);
-
-var fastdomPromised = {exports: {}};
-
-(function (module) {
-	!(function() {
-
-	/**
-	 * Wraps fastdom in a Promise API
-	 * for improved control-flow.
-	 *
-	 * @example
-	 *
-	 * // returning a result
-	 * fastdom.measure(() => el.clientWidth)
-	 *   .then(result => ...);
-	 *
-	 * // returning promises from tasks
-	 * fastdom.measure(() => {
-	 *   var w = el1.clientWidth;
-	 *   return fastdom.mutate(() => el2.style.width = w + 'px');
-	 * }).then(() => console.log('all done'));
-	 *
-	 * // clearing pending tasks
-	 * var promise = fastdom.measure(...)
-	 * fastdom.clear(promise);
-	 *
-	 * @type {Object}
-	 */
-	var exports = {
-	  initialize: function() {
-	    this._tasks = new Map();
-	  },
-
-	  mutate: function(fn, ctx) {
-	    return create(this, 'mutate', fn, ctx);
-	  },
-
-	  measure: function(fn, ctx) {
-	    return create(this, 'measure', fn, ctx);
-	  },
-
-	  clear: function(promise) {
-	    var tasks = this._tasks;
-	    var task = tasks.get(promise);
-	    this.fastdom.clear(task);
-	    tasks.delete(promise);
-	  }
-	};
-
-	/**
-	 * Create a fastdom task wrapped in
-	 * a 'cancellable' Promise.
-	 *
-	 * @param  {FastDom}  fastdom
-	 * @param  {String}   type - 'measure'|'mutate'
-	 * @param  {Function} fn
-	 * @return {Promise}
-	 */
-	function create(promised, type, fn, ctx) {
-	  var tasks = promised._tasks;
-	  var fastdom = promised.fastdom;
-	  var task;
-
-	  var promise = new Promise(function(resolve, reject) {
-	    task = fastdom[type](function() {
-	      tasks.delete(promise);
-	      try { resolve(ctx ? fn.call(ctx) : fn()); }
-	      catch (e) { reject(e); }
-	    }, ctx);
-	  });
-
-	  tasks.set(promise, task);
-	  return promise;
-	}
-
-	// Expose to CJS, AMD or global
-	if ((typeof undefined)[0] == 'f') undefined(function() { return exports; });
-	else if (('object')[0] == 'o') module.exports = exports;
-	else window.fastdomPromised = exports;
-
-	})(); 
-} (fastdomPromised));
-
-var fastdomPromisedExports = fastdomPromised.exports;
-var fastdomPromiseExtension = /*@__PURE__*/getDefaultExportFromCjs(fastdomPromisedExports);
-
 (function(){/*
 
  Copyright The Closure Library Authors.
@@ -71687,6 +71372,350 @@ function sort(data, axis) {
 // ] as Boundary2D[]
 // const tree = new KDTree(nodes)
 
+var fastdom$1 = {exports: {}};
+
+(function (module) {
+	!(function(win) {
+
+	/**
+	 * Mini logger
+	 *
+	 * @return {Function}
+	 */
+	var debug = function() {};
+
+	/**
+	 * Normalized rAF
+	 *
+	 * @type {Function}
+	 */
+	var raf = win.requestAnimationFrame
+	  || win.webkitRequestAnimationFrame
+	  || win.mozRequestAnimationFrame
+	  || win.msRequestAnimationFrame
+	  || function(cb) { return setTimeout(cb, 16); };
+
+	/**
+	 * Initialize a `FastDom`.
+	 *
+	 * @constructor
+	 */
+	function FastDom() {
+	  var self = this;
+	  self.reads = [];
+	  self.writes = [];
+	  self.raf = raf.bind(win); // test hook
+	}
+
+	FastDom.prototype = {
+	  constructor: FastDom,
+
+	  /**
+	   * We run this inside a try catch
+	   * so that if any jobs error, we
+	   * are able to recover and continue
+	   * to flush the batch until it's empty.
+	   *
+	   * @param {Array} tasks
+	   */
+	  runTasks: function(tasks) {
+	    var task; while (task = tasks.shift()) task();
+	  },
+
+	  /**
+	   * Adds a job to the read batch and
+	   * schedules a new frame if need be.
+	   *
+	   * @param  {Function} fn
+	   * @param  {Object} ctx the context to be bound to `fn` (optional).
+	   * @public
+	   */
+	  measure: function(fn, ctx) {
+	    var task = !ctx ? fn : fn.bind(ctx);
+	    this.reads.push(task);
+	    scheduleFlush(this);
+	    return task;
+	  },
+
+	  /**
+	   * Adds a job to the
+	   * write batch and schedules
+	   * a new frame if need be.
+	   *
+	   * @param  {Function} fn
+	   * @param  {Object} ctx the context to be bound to `fn` (optional).
+	   * @public
+	   */
+	  mutate: function(fn, ctx) {
+	    var task = !ctx ? fn : fn.bind(ctx);
+	    this.writes.push(task);
+	    scheduleFlush(this);
+	    return task;
+	  },
+
+	  /**
+	   * Clears a scheduled 'read' or 'write' task.
+	   *
+	   * @param {Object} task
+	   * @return {Boolean} success
+	   * @public
+	   */
+	  clear: function(task) {
+	    return remove(this.reads, task) || remove(this.writes, task);
+	  },
+
+	  /**
+	   * Extend this FastDom with some
+	   * custom functionality.
+	   *
+	   * Because fastdom must *always* be a
+	   * singleton, we're actually extending
+	   * the fastdom instance. This means tasks
+	   * scheduled by an extension still enter
+	   * fastdom's global task queue.
+	   *
+	   * The 'super' instance can be accessed
+	   * from `this.fastdom`.
+	   *
+	   * @example
+	   *
+	   * var myFastdom = fastdom.extend({
+	   *   initialize: function() {
+	   *     // runs on creation
+	   *   },
+	   *
+	   *   // override a method
+	   *   measure: function(fn) {
+	   *     // do extra stuff ...
+	   *
+	   *     // then call the original
+	   *     return this.fastdom.measure(fn);
+	   *   },
+	   *
+	   *   ...
+	   * });
+	   *
+	   * @param  {Object} props  properties to mixin
+	   * @return {FastDom}
+	   */
+	  extend: function(props) {
+	    if (typeof props != 'object') throw new Error('expected object');
+
+	    var child = Object.create(this);
+	    mixin(child, props);
+	    child.fastdom = this;
+
+	    // run optional creation hook
+	    if (child.initialize) child.initialize();
+
+	    return child;
+	  },
+
+	  // override this with a function
+	  // to prevent Errors in console
+	  // when tasks throw
+	  catch: null
+	};
+
+	/**
+	 * Schedules a new read/write
+	 * batch if one isn't pending.
+	 *
+	 * @private
+	 */
+	function scheduleFlush(fastdom) {
+	  if (!fastdom.scheduled) {
+	    fastdom.scheduled = true;
+	    fastdom.raf(flush.bind(null, fastdom));
+	  }
+	}
+
+	/**
+	 * Runs queued `read` and `write` tasks.
+	 *
+	 * Errors are caught and thrown by default.
+	 * If a `.catch` function has been defined
+	 * it is called instead.
+	 *
+	 * @private
+	 */
+	function flush(fastdom) {
+
+	  var writes = fastdom.writes;
+	  var reads = fastdom.reads;
+	  var error;
+
+	  try {
+	    debug('flushing reads', reads.length);
+	    fastdom.runTasks(reads);
+	    debug('flushing writes', writes.length);
+	    fastdom.runTasks(writes);
+	  } catch (e) { error = e; }
+
+	  fastdom.scheduled = false;
+
+	  // If the batch errored we may still have tasks queued
+	  if (reads.length || writes.length) scheduleFlush(fastdom);
+
+	  if (error) {
+	    debug('task errored', error.message);
+	    if (fastdom.catch) fastdom.catch(error);
+	    else throw error;
+	  }
+	}
+
+	/**
+	 * Remove an item from an Array.
+	 *
+	 * @param  {Array} array
+	 * @param  {*} item
+	 * @return {Boolean}
+	 */
+	function remove(array, item) {
+	  var index = array.indexOf(item);
+	  return !!~index && !!array.splice(index, 1);
+	}
+
+	/**
+	 * Mixin own properties of source
+	 * object into the target.
+	 *
+	 * @param  {Object} target
+	 * @param  {Object} source
+	 */
+	function mixin(target, source) {
+	  for (var key in source) {
+	    if (source.hasOwnProperty(key)) target[key] = source[key];
+	  }
+	}
+
+	// There should never be more than
+	// one instance of `FastDom` in an app
+	var exports = win.fastdom = (win.fastdom || new FastDom()); // jshint ignore:line
+
+	// Expose to CJS & AMD
+	module.exports = exports;
+
+	})( typeof window !== 'undefined' ? window : typeof commonjsGlobal != 'undefined' ? commonjsGlobal : globalThis); 
+} (fastdom$1));
+
+var fastdomExports = fastdom$1.exports;
+var Fastdom = /*@__PURE__*/getDefaultExportFromCjs(fastdomExports);
+
+var fastdomPromised = {exports: {}};
+
+(function (module) {
+	!(function() {
+
+	/**
+	 * Wraps fastdom in a Promise API
+	 * for improved control-flow.
+	 *
+	 * @example
+	 *
+	 * // returning a result
+	 * fastdom.measure(() => el.clientWidth)
+	 *   .then(result => ...);
+	 *
+	 * // returning promises from tasks
+	 * fastdom.measure(() => {
+	 *   var w = el1.clientWidth;
+	 *   return fastdom.mutate(() => el2.style.width = w + 'px');
+	 * }).then(() => console.log('all done'));
+	 *
+	 * // clearing pending tasks
+	 * var promise = fastdom.measure(...)
+	 * fastdom.clear(promise);
+	 *
+	 * @type {Object}
+	 */
+	var exports = {
+	  initialize: function() {
+	    this._tasks = new Map();
+	  },
+
+	  mutate: function(fn, ctx) {
+	    return create(this, 'mutate', fn, ctx);
+	  },
+
+	  measure: function(fn, ctx) {
+	    return create(this, 'measure', fn, ctx);
+	  },
+
+	  clear: function(promise) {
+	    var tasks = this._tasks;
+	    var task = tasks.get(promise);
+	    this.fastdom.clear(task);
+	    tasks.delete(promise);
+	  }
+	};
+
+	/**
+	 * Create a fastdom task wrapped in
+	 * a 'cancellable' Promise.
+	 *
+	 * @param  {FastDom}  fastdom
+	 * @param  {String}   type - 'measure'|'mutate'
+	 * @param  {Function} fn
+	 * @return {Promise}
+	 */
+	function create(promised, type, fn, ctx) {
+	  var tasks = promised._tasks;
+	  var fastdom = promised.fastdom;
+	  var task;
+
+	  var promise = new Promise(function(resolve, reject) {
+	    task = fastdom[type](function() {
+	      tasks.delete(promise);
+	      try { resolve(ctx ? fn.call(ctx) : fn()); }
+	      catch (e) { reject(e); }
+	    }, ctx);
+	  });
+
+	  tasks.set(promise, task);
+	  return promise;
+	}
+
+	// Expose to CJS, AMD or global
+	if ((typeof undefined)[0] == 'f') undefined(function() { return exports; });
+	else if (('object')[0] == 'o') module.exports = exports;
+	else window.fastdomPromised = exports;
+
+	})(); 
+} (fastdomPromised));
+
+var fastdomPromisedExports = fastdomPromised.exports;
+var fastdomPromiseExtension = /*@__PURE__*/getDefaultExportFromCjs(fastdomPromisedExports);
+
+// preorder traverse DOM tree
+function traverse(root, cb) {
+    if (!root) {
+        return null;
+    }
+    if (cb) {
+        cb(root);
+    }
+    for (let i = 0; i < root?.childNodes?.length; i++) {
+        const childNode = root.childNodes[i];
+        const isValid = checkIsValidNode(childNode);
+        if (!isValid) {
+            continue;
+        }
+        traverse(childNode, cb);
+    }
+}
+function checkIsValidNode(elem) {
+    const invalidTags = ['script', 'head', 'data', 'embed', 'html', 'unknown', 'meta', 'link', 'object', 'script', 'noscript', 'source', 'template', 'track', 'title', 'style', 'link', '#text'
+    ];
+    //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeValue
+    // https://developer.mozilla.org/docs/Web/API/Node/nodeType
+    const isElem = !elem.nodeValue && elem.nodeType === 1;
+    const isValid = !invalidTags.includes(elem.nodeName.toLowerCase());
+    return isElem && isValid;
+}
+traverse(document.body);
+
+const fastdom = Fastdom.extend(fastdomPromiseExtension);
 class DataDomain {
     // for better DX purpose
     [Symbol.iterator]() {
@@ -71733,6 +71762,40 @@ class DataDomain {
         }
         this._originalData = data;
         this.dimension = dimension;
+        this.size = this._originalData.length;
+    }
+    async update() {
+        const PREFIX = 'vgesturable';
+        const elemBoundaries = [];
+        let id = 0;
+        await fastdom.mutate(() => {
+            // traverse from  Dom tree, rooting from body node, find all elems with gClickable specified elements
+            // create kdtree to handle event target domain
+            traverse(document.body, (elem) => {
+                if (elem.hasAttribute('vgesturable')) {
+                    const clickableElem = elem;
+                    const { top, left, width, height } = clickableElem.getBoundingClientRect();
+                    let elemId = clickableElem.id;
+                    if (!elemId) {
+                        elemId = `${PREFIX}-${id}`;
+                        id++;
+                    }
+                    clickableElem.id = elemId;
+                    const x = left + width / 2;
+                    const y = top + height / 2;
+                    const dx = width / 2;
+                    const dy = height / 2;
+                    const boundary = [x, y, dx, dy];
+                    const ElementBoundary = {
+                        id: elemId,
+                        dimension: boundary.length / 2,
+                        boundary
+                    };
+                    elemBoundaries.push(ElementBoundary);
+                }
+            });
+        });
+        this._originalData = elemBoundaries;
         this.size = this._originalData.length;
     }
     searchClosest(pivot) {
@@ -71907,6 +71970,21 @@ function getOperationReciept(operationKey) {
     }
 }
 
+function register(vGesture, plugin) {
+    const gestureName = plugin.gesture.name;
+    const gestureManager = vGesture.gestureManager;
+    if (!gestureManager.gestures.has(gestureName)) {
+        const handlerFunc = (e) => {
+            plugin.gesture.handler(e, vGesture.gestureTargetCollection);
+        };
+        window.addEventListener(plugin.gesture.eventName, handlerFunc);
+        return [handlerFunc];
+    }
+}
+function unregister(plugin, handlerFunc) {
+    window.removeEventListener(plugin.gesture.eventName, handlerFunc);
+}
+
 const $$setterAccessKey = Symbol('Gesture-manager');
 const SUPPORTING_VERTEX = {
     'thumb_tip': true,
@@ -71963,7 +72041,7 @@ class GestureManager {
     has(key) {
         return this.gestures.has(key);
     }
-    register(plugin) {
+    register(plugin, handlerFunc) {
         const gestureName = plugin.gesture.name;
         const gestures = this.gestures;
         const gestureGC = this.gestureGC;
@@ -71977,7 +72055,12 @@ class GestureManager {
             return;
         }
         const dispose = () => {
-            plugin.unregister();
+            if (plugin.unregister) {
+                plugin.unregister();
+            }
+            else if (handlerFunc) {
+                unregister(plugin, handlerFunc);
+            }
             gestures.delete(gestureName);
         };
         gestures.set(gestureName, plugin.gesture);
@@ -72086,34 +72169,6 @@ class GestureManager {
         return operation;
     }
 }
-
-// preorder traverse DOM tree
-function traverse(root, cb) {
-    if (!root) {
-        return null;
-    }
-    if (cb) {
-        cb(root);
-    }
-    for (let i = 0; i < root?.childNodes?.length; i++) {
-        const childNode = root.childNodes[i];
-        const isValid = checkIsValidNode(childNode);
-        if (!isValid) {
-            continue;
-        }
-        traverse(childNode, cb);
-    }
-}
-function checkIsValidNode(elem) {
-    const invalidTags = ['script', 'head', 'data', 'embed', 'html', 'unknown', 'meta', 'link', 'object', 'script', 'noscript', 'source', 'template', 'track', 'title', 'style', 'link', '#text'
-    ];
-    //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeValue
-    // https://developer.mozilla.org/docs/Web/API/Node/nodeType
-    const isElem = !elem.nodeValue && elem.nodeType === 1;
-    const isValid = !invalidTags.includes(elem.nodeName.toLowerCase());
-    return isElem && isValid;
-}
-traverse(document.body);
 
 class HitPoint {
     constructor(ctx, point, color, size) {
@@ -72315,7 +72370,16 @@ class Stage {
     }
 }
 
-const fastdom = Fastdom.extend(fastdomPromiseExtension);
+function isValidPlugin(plugin) {
+    if (plugin.register && !plugin.unregister) {
+        return false;
+    }
+    if (!plugin.register && plugin.unregister) {
+        return false;
+    }
+    return true;
+}
+
 const $$driverKey = Symbol('driverKey');
 class VGesture {
     constructor(options) {
@@ -72355,6 +72419,12 @@ class VGesture {
             writable: true,
             value: null
         });
+        Object.defineProperty(this, "observer", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
         Object.defineProperty(this, "sessionState", {
             enumerable: true,
             configurable: true,
@@ -72391,6 +72461,14 @@ class VGesture {
         this.dataDimension = dataDimension;
         this.gestureManager = new GestureManager();
         this.sessionState = SESSION_STATE.IDLE;
+        this.observer = new MutationObserver(() => {
+            this.flush();
+        });
+        this.observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
     }
     async initialize() {
         if (this.initialized) {
@@ -72406,8 +72484,25 @@ class VGesture {
         this.camera = await Camera.setupCamera({ targetFPS: 60 });
         this.stage = new Stage(this.helper);
         await this.detector.initialize();
+        // this.observer.observe(document.body, {
+        //   childList: true,
+        //   subtree: true,
+        //   characterData: true,
+        // })
         this.initialized = true;
         this.sessionState = SESSION_STATE.READY;
+    }
+    /**
+     * Since mutation observer works only for DOM changes, its difficult to catch whethere
+     * there was reflow at vgesturable elements via cssom changes.
+     *
+     * So its highly recommended to not to change vgesturable element's position after initialize.
+     *
+     * But in case need of recalculating elements position, use this function to refresh positions.
+     * e.g) language change for global website, responsive website etc..
+     */
+    async flush() {
+        this.gestureTargetCollection.update();
     }
     async startDetection() {
         if (!this.initialized || !this.detector) {
@@ -72436,6 +72531,7 @@ class VGesture {
         this.stage.disconnect();
         this.gestureManager.disposeAll();
         this._cleanStartedElems();
+        this.observer.disconnect();
         this.initialized = false;
     }
     register(plugin) {
@@ -72445,8 +72541,21 @@ class VGesture {
             warn(`${gestureName} is already registered`);
             return;
         }
-        plugin.register(this);
-        gestureManager.register(plugin);
+        let handlerFunc;
+        const isValid = isValidPlugin(plugin);
+        if (!isValid) {
+            throw new VGestureError(ERROR_TYPE.VALIDATION, 'VGesture.register', "Validation Error: plugin doesn't match valid interface");
+        }
+        if (plugin.register) {
+            plugin.register(this);
+        }
+        else {
+            const handlerFunc_ = register(this, plugin);
+            if (handlerFunc_ instanceof Array) {
+                handlerFunc = handlerFunc_[0];
+            }
+        }
+        gestureManager.register(plugin, handlerFunc);
     }
     unregister(gestureName) {
         this.gestureManager.dispose(gestureName);
@@ -72521,37 +72630,8 @@ class VGesture {
         });
     }
     async _generateGestureTargetCollection() {
-        const PREFIX = 'vgesturable';
-        const elemBoundaries = [];
-        let id = 0;
-        await fastdom.mutate(() => {
-            // traverse from  Dom tree, rooting from body node, find all elems with gClickable specified elements
-            // create kdtree to handle event target domain
-            traverse(document.body, (elem) => {
-                if (elem.hasAttribute('vgesturable')) {
-                    const clickableElem = elem;
-                    const { top, left, width, height } = clickableElem.getBoundingClientRect();
-                    let elemId = clickableElem.id;
-                    if (!elemId) {
-                        elemId = `${PREFIX}-${id}`;
-                        id++;
-                    }
-                    clickableElem.id = elemId;
-                    const x = left + width / 2;
-                    const y = top + height / 2;
-                    const dx = width / 2;
-                    const dy = height / 2;
-                    const boundary = [x, y, dx, dy];
-                    const ElementBoundary = {
-                        id: elemId,
-                        dimension: boundary.length / 2,
-                        boundary
-                    };
-                    elemBoundaries.push(ElementBoundary);
-                }
-            });
-            this.gestureTargetCollection = new DataDomain(elemBoundaries);
-        });
+        this.gestureTargetCollection = new DataDomain([]);
+        this.gestureTargetCollection.update();
     }
     _createStarterElems() {
         // create video , canvas element to detect & draw scene

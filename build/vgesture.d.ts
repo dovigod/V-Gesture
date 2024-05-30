@@ -109,6 +109,7 @@ declare class DataDomain {
         };
     };
     constructor(data: ElementBoundary[], dimension?: number);
+    update(): Promise<void>;
     searchClosest(pivot: Vector2D | Vector3D): ElementBoundary | undefined;
     /** take a snapshot of original 'data' and create searchTree filled with valid data sets(which is actual candidates of target element)  */
     private _createSearchTree;
@@ -160,19 +161,19 @@ interface AbstractGesture {
 interface AbstractGesturePlugin {
     gesture: AbstractGesture;
     /**
-     *
-     *
-     * update func
-     * listerner,
-     * garbage collectings
+     * NOTE) If register is delcared, unregister should be also declared.
+     * by default, abstract plugins will have prebuilt register/unregister methods
+     * if specified, it will override prebuilt.
+     * e.g)stuffs setting for update func, listerner, garbage collectings
      */
-    register: (gestureManager: VGesture) => VGesture;
+    register?: (gestureManager: VGesture) => VGesture;
     /**
-     *
-     * used when cleaning up gracefully.
+     * NOTE) If unregister is delcared, register should be also declared.
+     * by default, abstract plugins will have prebuilt register/unregister methods
+     * if specified, it will override prebuilt.
      * e.g) removing event listeners etc..
      */
-    unregister: () => void;
+    unregister?: () => void;
 }
 
 /**
@@ -187,7 +188,7 @@ declare class GestureManager {
     version: number;
     constructor();
     has(key: string): boolean;
-    register(plugin: AbstractGesturePlugin): void;
+    register(plugin: AbstractGesturePlugin, handlerFunc?: (e: unknown) => void): void;
     dispose(gestureName: string): void;
     disposeAll(): void;
     updateHandVertex(handDirection: Handedness, hand: Hand): void;
@@ -205,12 +206,23 @@ declare class VGesture {
     private detector;
     private camera;
     private stage;
+    private observer;
     private sessionState;
     private frameId;
     dataDimension: 2;
     helper: Helper | null;
     constructor(options?: VGestureOption);
     initialize(): Promise<void>;
+    /**
+     * Since mutation observer works only for DOM changes, its difficult to catch whethere
+     * there was reflow at vgesturable elements via cssom changes.
+     *
+     * So its highly recommended to not to change vgesturable element's position after initialize.
+     *
+     * But in case need of recalculating elements position, use this function to refresh positions.
+     * e.g) language change for global website, responsive website etc..
+     */
+    flush(): Promise<void>;
     startDetection(): Promise<void>;
     endDetection(): void;
     register(plugin: AbstractGesturePlugin): void;
