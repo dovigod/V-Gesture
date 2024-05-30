@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.5](https://github.com/dovigod/V-Gesture/compare/v1.1.4...v1.1.5) (2024-05-30)
+
+
+### Bug Fixes
+
+* disable pointer events on canvas ([#45](https://github.com/dovigod/V-Gesture/issues/45)) ([bc62b7a](https://github.com/dovigod/V-Gesture/commit/bc62b7a93532fc11720102ee80b7aacfc31955c5))
+
+
+### Others
+
+* builds ([a4c341e](https://github.com/dovigod/V-Gesture/commit/a4c341e375689cf63940d9c32a04d78d8ce1627d))
+
 ### [1.1.4](https://github.com/dovigod/V-Gesture/compare/v1.1.3...v1.1.4) (2024-05-30)
 
 
