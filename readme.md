@@ -2,8 +2,10 @@
 
 [//]: <> (start placeholder for auto-badger)
 
+![NPM License](https://img.shields.io/npm/l/%40dvgs%2Fvgesture)
 [![version](https://img.shields.io/npm/v/@dvgs/vgesture.svg?style=flat-square)](https://npmjs.org/@dvgs/vgesture)
-[![license](https://img.shields.io/npm/l/@dvgs/vgesture?color=%23007a1f&style=flat-square)](https://github.com/dovigod/V-Gesture/LICENSE)
+![npm package minimized gzipped size (scoped)](https://img.shields.io/bundlejs/size/%40dvgs/vgesture)
+
 
 [//]: <> (end placeholder for auto-badger)
 Typescript library which gives ability to interact with DOM elements with hand gestures via webcam.
@@ -88,7 +90,7 @@ Type : `(hands:  Hand[], requestedOperations?:  Record<OperationKey, any>) => {x
 
 **(Important)**
 
-_determinant_ is the function which determine current user's hand pose is fulfilling gesture.
+_determinant_ is the function which determines whether current user's hand pose is fulfilling the gesture.
 if false is returned, it means current hand pose is not a gesture.
 if true or any truthy value is returned, it means current hand pose is a gesture.
 Besides, if you want to mark hit point on browser, return `{x: number , y: number}`
@@ -119,9 +121,114 @@ Actual Gesture implementation Instance.
 #### `Plugin.register`
 
 Type : `(gestureManager: VGesture) => VGesture`
-**(Soon will be removed)**
+
+(Optional) function which defines a way to handle register phase(adding event listeners, warm-up etc..). 
+
+By default, built-in `register` method will be used. [here](https://github.com/dovigod/V-Gesture/blob/main/src/utils/prebuilt/index.ts)
+
 
 #### `Plugin.unregister`
 
 Type : `(gestureManager: VGesture) => VGesture`
-**(Soon will be removed)**
+
+(Optional) function which defines a way to handle unregister phase(removing event listeners, clearing memory for plugin layer etc..). 
+
+By default, built-in `unregister` method will be used. [here](https://github.com/dovigod/V-Gesture/blob/main/src/utils/prebuilt/index.ts)
+
+
+## Reference
+#### `VGesture.initialize`
+
+Type : `() => Promise<void>`
+
+Initalize VGesture
+
+By calling this function, every core resources will be set-up(e.g MediaStream, DOM elements, DataDomain etc).
+
+**NOTE)** Webcam authentication modal will be called when this function gets invoked.
+
+#### `VGesture.register`
+
+Type : `(plugin : AbstractGesturePlugin) => void`
+
+Registers provided plugin to VGesture.
+
+This could be held during detection.
+
+
+#### `VGesture.unregister`
+
+Type : `(gestureName: string) => void`
+
+Discard plugin from VGesture by `gesture.name`.
+
+This could be held during detection.
+
+#### `VGesture.startDetection`
+
+Type : `() => Promise<void>`
+
+Starts gesture detection.
+
+
+#### `VGesture.endDetection`
+
+Type : `() => void`
+
+Ends gesture detection, and clear up VGesture session.
+
+Re-instantiation is required for restart.
+
+
+
+#### `VGesture.flush`
+
+Type : `() => void`
+
+VGesture contains `MutationObserver` under the hood which is used to detect any changes under decendant of `document.body`. Although DOM updates are reflected to `VGesture.DataDomain` via `MutationObserver`, it can't detect CSSOM changes such as stylesheet updates (e.g responsive web).
+
+Since its quite cumbersome and it might cause performance issues to detect CSSOM changes, use this function to manually update `VGesture.DataDomain` in case of reflow occurs for `vgesturable` element.
+
+
+
+## Requestable Operations / variables
+
+**Note**) When requesting function operation, parameters should be ordered alphabetical.
+
+```
+const type = 'function' ? 'func' : 'variable' : 'var' : '';
+let schema = `${type}::${name}`
+
+//ex) requesting variable
+"var::indexTip"
+
+//ex) requesting function
+// wrong :: "func::get2FingerDistance-indexTip-indexDip"
+// correct :: "func::get2FingerDistance-indexDip-indexTip"
+```
+
+
+
+| Name            |                                                                        Type                                                                        |   Description                                                                                                                                                           |
+| :---------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  get2FingerDistance | function  | get distance between provided finger tip parameter |
+| indexTip | variable | index tip coordinate [index: 9] |
+| thumbTip | variable | thumb tip coordinate [index: 4] |
+| pinkyTip | variable | pinky tip coordinate [index: 20] |
+| ringTip | variable | ring tip coordinate [index: 16] |
+| middleTip | variable | middle tip coordinate [index: 12] |
+| thumbIp | variable | thumbIp coordinate [index: 3] |
+| thumbMcp | variable | thumbMcp coordinate [index: 2] |
+| thumbCmc | variable | thumbCmc coordinate [index: 1] |
+| indexMcp | variable | indexMcp coordinate [index: 5] |
+| indexPip | variable | indexPip coordinate [index: 6] |
+| indexDip | variable | indexDip coordinate [index: 7] |
+| middleMcp | variable | middleMcp coordinate [index: 9] |
+| middlePip | variable | middlePip coordinate [index: 10] |
+| middleDip | variable | middleDip coordinate [index: 11] |
+| ringMcp | variable | ringMcp coordinate [index: 13] |
+| ringPip | variable | ringPip coordinate [index: 14] |
+| ringDip | variable | ringDip coordinate [index: 15] |
+| pinkyMcp | variable | pinkyMcp coordinate [index: 17] |
+| pinkyPip | variable | pinkyPip coordinate [index: 18] |
+| pinkyDip | variable | pinkyDip coordinate [index: 19] |
