@@ -32,5 +32,11 @@ async function init() {
   vGesture.register(clickGesturePlugin)
   await vGesture.startDetection()
   // vGesture.endDetection()
+
+
+  setTimeout(() => {
+    const t = document.getElementById('btn1')
+    t!.style.left = '300px'
+  }, 3000)
 }
 init()

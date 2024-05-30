@@ -1,9 +1,12 @@
 import { VGestureError } from '../../error';
-import { type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE } from '../../types'
+import { type Vector2D, type Vector3D, type ElementBoundary, ERROR_TYPE, Boundary2D } from '../../types'
 import { MAXIMUM_SUPPORTED_DIMENSION } from '../../constant';
 import { KDTree } from './KDTree';
+import Fastdom from 'fastdom';
+import fastdomPromiseExtension from 'fastdom/extensions/fastdom-promised'
+import { traverse } from '../../utils/dom/traverse';
 
-
+const fastdom = Fastdom.extend(fastdomPromiseExtension);
 export class DataDomain {
   private _originalData: ElementBoundary[];
   size: number;
@@ -29,11 +32,52 @@ export class DataDomain {
     this.size = this._originalData.length;
   }
 
+
+  async update() {
+    const PREFIX = 'vgesturable'
+    const elemBoundaries: ElementBoundary[] = []
+    let id = 0;
+
+    await fastdom.mutate(() => {
+      // traverse from  Dom tree, rooting from body node, find all elems with gClickable specified elements
+      // create kdtree to handle event target domain
+      traverse(document.body, (elem) => {
+        if ((elem as HTMLElement).hasAttribute('vgesturable')) {
+          const clickableElem = elem as HTMLElement
+          const { top, left, width, height } = clickableElem.getBoundingClientRect();
+          let elemId = clickableElem.id;
+
+          if (!elemId) {
+            elemId = `${PREFIX}-${id}`
+            id++;
+          }
+
+          clickableElem.id = elemId;
+
+          const x = left + width / 2;
+          const y = top + height / 2;
+          const dx = width / 2;
+          const dy = height / 2;
+          const boundary = [x, y, dx, dy] as Boundary2D;
+          const ElementBoundary = {
+            id: elemId,
+            dimension: boundary.length / 2,
+            boundary
+          }
+          elemBoundaries.push(ElementBoundary)
+        }
+      })
+    })
+
+    this._originalData = elemBoundaries
+    this.size = this._originalData.length
+  }
+
+
   searchClosest(pivot: Vector2D | Vector3D) {
     const scrollOffset = [document.scrollingElement?.scrollLeft || 0, document.scrollingElement?.scrollTop || 0, 0];
     const positionOffset = [this.baseCoord[0] - scrollOffset[0], this.baseCoord[1] - scrollOffset[1]];
     this._createSearchTree(positionOffset);
-
     const searchTree = this._searchTree;
     if (!searchTree || !(searchTree instanceof KDTree)) {
       return;
