@@ -43,6 +43,15 @@ export class HandDetector {
     ).catch(error => {
       throw new VGestureError(ERROR_TYPE.PREDICTION, 'estimateHands', error)
     })
+
+    // swap hand direction since tfjs's hand coord is set base on viewport
+    for (const hand of hands) {
+      if (hand.handedness === 'Left') {
+        hand.handedness = 'Right'
+      } else {
+        hand.handedness = 'Left'
+      }
+    }
     if (!(hands instanceof Array)) {
       detector?.dispose();
       this._detector = createMutationEnvelop($$setterAccessKey, null);

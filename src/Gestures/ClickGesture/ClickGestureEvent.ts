@@ -12,8 +12,6 @@ export class ClickGestureEvent extends Event {
     this.indexTip = gestureInfo.indexTip;
     this.thumbTip = gestureInfo.thumbTip;
 
-    console.log(gestureInfo)
-
     this.triggerPoint = {
       x: window.innerWidth - (this.indexTip.x + this.thumbTip.x) / 2,
       y: (this.indexTip.y + this.thumbTip.y) / 2,

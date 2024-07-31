@@ -201,7 +201,7 @@ export class VGesture {
 
     // update hand vertex
     for (const hand of hands) {
-      const direction = hand.handedness === 'Right' ? Handedness.LEFT : Handedness.RIGHT;
+      const direction = hand.handedness === 'Left' ? Handedness.LEFT : Handedness.RIGHT;
       gestureManager.updateHandVertex(direction as Handedness, hand);
       gestureManager.handsVertex.get(direction)?.forEach((vertex) => {
         stage.drawTips(vertex)
@@ -210,7 +210,7 @@ export class VGesture {
     }
 
     // get requested operation from gestureManager.
-    // if requestedOperation is staled (controled by version), refresh 
+    // if operations is staled (controled by version), refresh 
     gestureManager.version = (gestureManager.version + 1) % 8;
     gestureManager.gestures.forEach((gesture) => {
       let requestedOperations: Record<OperationKey, OperationRecord> | undefined;
