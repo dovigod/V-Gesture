@@ -90,9 +90,8 @@ interface HelperConfig {
     };
 }
 interface VGestureOption {
-    handedness?: Handedness;
     dataDimension?: 2;
-    disableHelper?: Boolean;
+    enableHelper?: Boolean;
     helper?: HelperConfig;
 }
 
@@ -147,11 +146,11 @@ interface AbstractGesture {
      *
      *
      */
-    operationsRequest?: OperationKey[];
+    operations?: OperationKey[];
     /**
-     * active hand which used for dectecting gesture
+     * active hand which is used for dectecting gesture
      */
-    usedHand: Handedness;
+    hand: Handedness;
 }
 
 /**
@@ -188,7 +187,7 @@ declare class GestureManager {
     version: number;
     constructor();
     has(key: string): boolean;
-    register(plugin: AbstractGesturePlugin, handlerFunc?: (e: unknown) => void): void;
+    register(plugin_: AbstractGesturePlugin, handlerFunc?: (e: unknown) => void): void;
     dispose(gestureName: string): void;
     disposeAll(): void;
     updateHandVertex(handDirection: Handedness, hand: Hand): void;
@@ -206,12 +205,13 @@ declare class VGesture {
     private detector;
     private camera;
     private stage;
-    private observer;
+    private domObserver;
+    private cssomObserver;
     private sessionState;
     private frameId;
     dataDimension: 2;
     helper: Helper | null;
-    constructor(options?: VGestureOption);
+    constructor(options_?: VGestureOption);
     initialize(): Promise<void>;
     /**
      * Since mutation observer works only for DOM changes, its difficult to catch whethere

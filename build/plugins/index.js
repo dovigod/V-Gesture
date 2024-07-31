@@ -63,7 +63,7 @@ class ClickGesture {
             writable: true,
             value: 'clickGesture'
         });
-        Object.defineProperty(this, "usedHand", {
+        Object.defineProperty(this, "hand", {
             enumerable: true,
             configurable: true,
             writable: true,
@@ -93,7 +93,7 @@ class ClickGesture {
             writable: true,
             value: false
         });
-        Object.defineProperty(this, "operationsRequest", {
+        Object.defineProperty(this, "operations", {
             enumerable: true,
             configurable: true,
             writable: true,
@@ -106,7 +106,7 @@ class ClickGesture {
         });
         this.dispatchInterval = config?.dispatchInterval || 500;
         this.threshold = config?.threshold || 1200;
-        this.usedHand = config?.usedHand || Handedness.LEFT;
+        this.hand = config?.hand || Handedness.LEFT;
     }
     handler(event, dataDomain, triggerHelperElem) {
         const e = event;
@@ -130,7 +130,7 @@ class ClickGesture {
             }
         }
     }
-    determinant(hands, requestedOperations) {
+    determinant(hands, operations) {
         //cool down
         if (this.timer) {
             return false;
@@ -138,9 +138,9 @@ class ClickGesture {
         if (hands.length === 0) {
             return false;
         }
-        const distance = requestedOperations['func::get2FingerDistance-thumbTip-indexTip'];
-        const indexTip = requestedOperations['var::indexTip'];
-        const thumbTip = requestedOperations['var::thumbTip'];
+        const distance = operations['func::get2FingerDistance-thumbTip-indexTip'];
+        const indexTip = operations['var::indexTip'];
+        const thumbTip = operations['var::thumbTip'];
         if (indexTip && thumbTip) {
             if (distance <= this.threshold) {
                 dispatchEvent(new ClickGestureEvent(this.eventName, { indexTip, thumbTip }));
