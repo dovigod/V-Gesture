@@ -24,7 +24,10 @@ const $$driverKey = Symbol('driverKey');
 
 
 export class VGesture {
+
+  /**@ignore */
   public gestureManager: GestureManager
+  /**@ignore */
   public gestureTargetCollection!: DataDomain
   private initialized: boolean = false;
   private detector: HandDetector | null = null;
@@ -36,7 +39,9 @@ export class VGesture {
   private sessionState: SESSION_STATE;
   private frameId: number | null = null;
   //VGestureConfig
+  /** @ignore */
   public dataDimension!: 2; // currently only 2 is allowed.
+  /** @ignore */
   public helper: Helper | null;
 
 
@@ -51,35 +56,33 @@ export class VGesture {
       hitpoint: options?.helper?.hitpoint || {}
     } : null;
 
+    /**@ignore */
     this.helper = helper as Helper | null;
+    /**@ignore */
     this.dataDimension = dataDimension;
+    /**@ignore */
     this.gestureManager = new GestureManager()
+    /**@ignore */
     this.sessionState = SESSION_STATE.IDLE;
+    /**@ignore */
     this.domObserver = new MutationObserver(() => {
       this.flush()
     })
-
-    // check any dom is added or removed, updated.
-    this.domObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-      attributeFilter: ['style', 'vgesturable']
-    })
-
     // to check reflows
     // can't detect transform
+    /**@ignore */
     this.cssomObserver = new ResizeObserver(() => {
       debounce(this.flush.bind(this), 200)
     })
-    traverse(document.body, (node: Node | ParentNode | HTMLElement) => {
-      this.cssomObserver.observe(node as Element);
-      // for psuedo events like :hover ... but cant detect when transition attribute isnt presented.
-      node.addEventListener('transitionend', this.flush.bind(this))
-    })
+
 
   }
 
+  /**
+   * 
+   * setup required DOM elements & media stream for camera & hand detector
+   *  
+   */
   async initialize() {
     if (this.initialized) {
       error('Duplicate V-Gesture initialization not allowed')
@@ -100,27 +103,43 @@ export class VGesture {
 
     await this.detector.initialize();
 
-    // this.observer.observe(document.body, {
-    //   childList: true,
-    //   subtree: true,
-    //   characterData: true,
-    // })
+    // check any dom is added or removed, updated.
+    this.domObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributeFilter: ['style', 'vgesturable']
+    })
+
+    traverse(document.body, (node: Node | ParentNode | HTMLElement) => {
+      this.cssomObserver.observe(node as Element);
+      // for psuedo events like :hover ... but cant detect when transition attribute isnt presented.
+      node.addEventListener('transitionend', this.flush.bind(this))
+    })
+
     this.initialized = true;
     this.sessionState = SESSION_STATE.READY;
   }
 
   /**
-   * Since mutation observer works only for DOM changes, its difficult to catch whethere
-   * there was reflow at vgesturable elements via cssom changes. 
    * 
-   * So its highly recommended to not to change vgesturable element's position after initialize.
+   * Imperativly update `DataDomain`. recalculate all `vgesturable` position and dimension manually.
    * 
+   * 
+   * 
+   * **NOTE)ts highly recommended to not to change vgesturable element's position after initialize.**
    * But in case need of recalculating elements position, use this function to refresh positions.
    * e.g) language change for global website, responsive website etc..
    */
   async flush() {
     this.gestureTargetCollection.update();
   }
+
+
+  /**
+   * Start Detecting handpose and check whether it matches registered gestures.
+   * 
+   */
   async startDetection() {
     if (!this.initialized || !this.detector) {
       throw new VGestureError(ERROR_TYPE.VALIDATION, 'VGesture.startDetection', 'Validation Error: V-Gesture not initialized')
@@ -137,6 +156,12 @@ export class VGesture {
     _();
   }
 
+
+  /**
+   * Ends detection and clean up session & memory
+   * 
+   * In order to re-start detection, you must re-instantiate.
+   */
   endDetection() {
     if (this.sessionState === SESSION_STATE.FINISHED) {
       throw new VGestureError(ERROR_TYPE.VALIDATION, 'VGesture.stopDetection', 'Validation Error: Staled session')
@@ -154,6 +179,10 @@ export class VGesture {
     this.initialized = false;
   }
 
+
+  /**
+   * Register GesturePlugin to `VGesture`
+   */
   register(plugin: AbstractGesturePlugin) {
     const gestureName = plugin.gesture.name;
     const gestureManager = this.gestureManager;
@@ -180,6 +209,10 @@ export class VGesture {
     gestureManager.register(plugin, handlerFunc)
   }
 
+  /**
+   * 
+   * Discard gesture from `VGesture` and clean up related stuff(e.g event listeners) as well.
+   */
   unregister(gestureName: string) {
     this.gestureManager.dispose(gestureName)
   }

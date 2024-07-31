@@ -4,6 +4,7 @@
     "./src/Gestures/Gesture.ts",
     "./src/plugins/Plugin.ts",
     "./src/plugins/ClickGesturePlugin.ts",
-    "./src/models/DataDomain/index.ts"
+    "./src/models/DataDomain/index.ts",
+    "./src/types.ts"
   ]
 }

@@ -57,6 +57,10 @@ vGesture.register(new ClickGesturePlugin())
 vGesture.startDetection()
 ```
 
+### Documentation
+
+[Documentation](https://dovigod.github.io/V-Gesture/) created by _[Typedocs](https://typedoc.org/)_
+
 ## Creating gesture
 
 VGesture provides [plugin](https://github.com/dovigod/V-Gesture/blob/main/src/Plugins/Plugin.ts) and [gesture](https://github.com/dovigod/V-Gesture/blob/main/src/Gestures/Gesture.ts) interface to easily create and use gesture defined by yourself.
