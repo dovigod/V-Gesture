@@ -15,3 +15,11 @@ body {
   height: 100vh;
   overflow: hidden;
 }
+
+#cssom:hover {
+  background-color: blue !important;
+}
+
+a:hover {
+  background-color: gold;
+}

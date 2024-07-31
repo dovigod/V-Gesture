@@ -46,5 +46,31 @@ async function init() {
 
     i++;
   })
+
+
+  const q = document.createElement('a')
+  q.id = 'cssom'
+  q.style.zIndex = 9999999
+  q.style.width = '200px';
+  q.style.height = '400px';
+  q.style.backgroundColor = 'red';
+  q.style.position = 'absolute';
+
+  q.style.top = '300px';
+  q.style.left = '300px'
+  q.innerText = '123123'
+
+  q.setAttribute('vgesturable', true)
+
+  document.body.appendChild(q);
+
+  q.addEventListener('click', () => {
+    alert('1231')
+  })
+
+  setTimeout(() => {
+    q.style.transform = 'translate(-200px)'
+  }, 3000)
+
 }
 init()

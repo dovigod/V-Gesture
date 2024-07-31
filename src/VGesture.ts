@@ -14,6 +14,8 @@ import { Stage } from './models/Stage';
 import { register } from './utils/prebuilt';
 import { isValidPlugin } from './utils/validation/plugin';
 import { compatiblizeParam } from './utils/polyfill/plugin';
+import { traverse } from './utils/dom';
+import { debounce } from './utils/debounce';
 
 
 // strictly prevents direct call for private method
@@ -28,7 +30,8 @@ export class VGesture {
   private detector: HandDetector | null = null;
   private camera: Camera | null = null;
   private stage: Stage | null = null;
-  private observer: MutationObserver;
+  private domObserver: MutationObserver;
+  private cssomObserver: ResizeObserver;
 
   private sessionState: SESSION_STATE;
   private frameId: number | null = null;
@@ -52,14 +55,29 @@ export class VGesture {
     this.dataDimension = dataDimension;
     this.gestureManager = new GestureManager()
     this.sessionState = SESSION_STATE.IDLE;
-    this.observer = new MutationObserver(() => {
+    this.domObserver = new MutationObserver(() => {
       this.flush()
     })
-    this.observer.observe(document.body, {
+
+    // check any dom is added or removed, updated.
+    this.domObserver.observe(document.body, {
       childList: true,
       subtree: true,
-      characterData: true
+      characterData: true,
+      attributeFilter: ['style', 'vgesturable']
     })
+
+    // to check reflows
+    // can't detect transform
+    this.cssomObserver = new ResizeObserver(() => {
+      debounce(this.flush.bind(this), 200)
+    })
+    traverse(document.body, (node: Node | ParentNode | HTMLElement) => {
+      this.cssomObserver.observe(node as Element);
+      // for psuedo events like :hover ... but cant detect when transition attribute isnt presented.
+      node.addEventListener('transitionend', this.flush.bind(this))
+    })
+
   }
 
   async initialize() {
@@ -131,7 +149,8 @@ export class VGesture {
     this.stage!.disconnect()
     this.gestureManager.disposeAll();
     this._cleanStartedElems();
-    this.observer.disconnect();
+    this.domObserver.disconnect();
+    this.cssomObserver.disconnect();
     this.initialized = false;
   }
 
