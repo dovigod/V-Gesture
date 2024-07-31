@@ -7,6 +7,7 @@ import { getVertex } from "../operation/operations";
 import type { Hand } from "@tensorflow-models/hand-pose-detection";
 import { protect } from "../utils/validation/trap";
 import { unregister } from "../utils/prebuilt";
+import { compatiblizeParam } from "../utils/polyfill/plugin";
 
 
 const $$setterAccessKey = Symbol('Gesture-manager')
@@ -44,15 +45,18 @@ export class GestureManager {
     return this.gestures.has(key)
   }
 
-  register(plugin: AbstractGesturePlugin, handlerFunc?: (e: unknown) => void) {
+  register(plugin_: AbstractGesturePlugin, handlerFunc?: (e: unknown) => void) {
+
+    const plugin = compatiblizeParam(plugin_)
+
     const gestureName = plugin.gesture.name;
     const gestures = this.gestures;
     const gestureGC = this.gestureGC;
-    const requestingOperations = plugin.gesture.operationsRequest;
-    const usedHand = plugin.gesture.usedHand;
+    const requestingOperations = plugin.gesture.operations;
+    const hand = plugin.gesture.hand;
 
     if (requestingOperations) {
-      this._registerOperation(requestingOperations, usedHand)
+      this._registerOperation(requestingOperations, hand)
     }
 
     if (gestures.has(gestureName)) {
@@ -77,8 +81,8 @@ export class GestureManager {
   dispose(gestureName: string) {
     const gesture = this.gestures.get(gestureName);
     // clean up from shared Operation
-    if (gesture?.operationsRequest) {
-      for (const operationKey of gesture.operationsRequest) {
+    if (gesture?.operations) {
+      for (const operationKey of gesture.operations) {
         const operationRecord = this.sharedOperations.get(operationKey);
         if (operationRecord) {
           operationRecord.used -= 1;

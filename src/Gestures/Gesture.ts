@@ -36,10 +36,10 @@ export interface AbstractGesture {
    * 
    * 
    */
-  operationsRequest?: OperationKey[]
+  operations?: OperationKey[]
 
   /**
-   * active hand which used for dectecting gesture
+   * active hand which is used for dectecting gesture
    */
-  usedHand: Handedness
+  hand: Handedness
 }
