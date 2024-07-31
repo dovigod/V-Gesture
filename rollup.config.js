@@ -82,9 +82,9 @@ function rollupMediapipeObfuscationPolyfill() {
     name: "mediapipe-obfuscation-polyfill",
     load(id) {
       if (path.basename(id) === "hands.js") {
-        let code = fs.readFileSync(id, "utf-8");
-        code += "exports.Hands = Hands;";
-        return { code };
+        let handSourceCode = fs.readFileSync(id, "utf-8");
+        handSourceCode += "exports.Hands = Hands;";
+        return { code: handSourceCode };
       } else {
         return null;
       }

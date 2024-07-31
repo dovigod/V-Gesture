@@ -13,8 +13,10 @@ import type { OperationRecord, Helper, VGestureOption } from './types';
 import { Stage } from './models/Stage';
 import { register } from './utils/prebuilt';
 import { isValidPlugin } from './utils/validation/plugin';
+import { compatiblizeParam } from './utils/polyfill/plugin';
 
 
+// strictly prevents direct call for private method
 const $$driverKey = Symbol('driverKey');
 
 
@@ -35,14 +37,16 @@ export class VGesture {
   public helper: Helper | null;
 
 
-  constructor(options?: VGestureOption) {
+  constructor(options_: VGestureOption = {}) {
+
+    const options = compatiblizeParam(options_);
     // populating configs
     const dataDimension = options?.dataDimension || 2;
-    const helper = options?.disableHelper ? null : {
+    const helper = options?.enableHelper ? {
       colors: options?.helper?.colors || {},
       sizes: options?.helper?.sizes || {},
       hitpoint: options?.helper?.hitpoint || {}
-    };
+    } : null;
 
     this.helper = helper as Helper | null;
     this.dataDimension = dataDimension;
@@ -211,9 +215,9 @@ export class VGesture {
     gestureManager.gestures.forEach((gesture) => {
       let requestedOperations: Record<OperationKey, OperationRecord> | undefined;
 
-      if (gesture.operationsRequest && gesture.operationsRequest.length > 0) {
+      if (gesture.operations && gesture.operations.length > 0) {
         requestedOperations = {};
-        for (const key of gesture.operationsRequest) {
+        for (const key of gesture.operations) {
           let value: any;
           const record = gestureManager.sharedOperations.get(key)
 
@@ -230,7 +234,6 @@ export class VGesture {
           }
         }
       }
-
       const det = gesture.determinant(hands, requestedOperations)
       if (det) {
         if ('x' in det && 'y' in det)

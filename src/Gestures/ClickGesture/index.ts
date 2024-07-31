@@ -7,18 +7,18 @@ import type { DataDomain } from '../../models/DataDomain';
 export interface ClickGestureConfig {
   dispatchInterval?: number;
   threshold?: number;
-  usedHand?: Handedness
+  hand?: Handedness
 }
 
 export class ClickGesture implements AbstractGesture {
   name = 'clickGesture';
   eventName = 'clickGesture';
-  usedHand: Handedness;
+  hand: Handedness;
   dispatchInterval: number;
   threshold: number;
   timer: number | null = null;
   _test: boolean = false;
-  operationsRequest: OperationKey[] = [
+  operations: OperationKey[] = [
     "func::get2FingerDistance-thumbTip-indexTip",
     "func::get2FingerDistance-thumbTip-middleTip",
     "var::thumbTip",
@@ -28,7 +28,7 @@ export class ClickGesture implements AbstractGesture {
   constructor(config?: ClickGestureConfig) {
     this.dispatchInterval = config?.dispatchInterval || 500;
     this.threshold = config?.threshold || 1200;
-    this.usedHand = config?.usedHand || Handedness.LEFT
+    this.hand = config?.hand || Handedness.LEFT
   }
 
   handler(event: unknown, dataDomain: DataDomain, triggerHelperElem?: HTMLDivElement) {
@@ -58,7 +58,7 @@ export class ClickGesture implements AbstractGesture {
 
   }
 
-  determinant(hands: Hand[], requestedOperations: Record<string, any>): any | boolean {
+  determinant(hands: Hand[], operations: Record<string, any>): any | boolean {
     //cool down
     if (this.timer) {
       return false;
@@ -67,9 +67,9 @@ export class ClickGesture implements AbstractGesture {
       return false;
     }
 
-    const distance = requestedOperations['func::get2FingerDistance-thumbTip-indexTip']
-    const indexTip = requestedOperations['var::indexTip'];
-    const thumbTip = requestedOperations['var::thumbTip'];
+    const distance = operations['func::get2FingerDistance-thumbTip-indexTip']
+    const indexTip = operations['var::indexTip'];
+    const thumbTip = operations['var::thumbTip'];
 
     if (indexTip && thumbTip) {
       if (distance <= this.threshold) {

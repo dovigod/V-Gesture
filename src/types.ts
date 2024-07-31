@@ -145,8 +145,7 @@ export interface HelperConfig {
   }
 }
 export interface VGestureOption {
-  handedness?: Handedness;
   dataDimension?: 2;
-  disableHelper?: Boolean;
+  enableHelper?: Boolean;
   helper?: HelperConfig;
 }

@@ -22,12 +22,11 @@ async function init() {
   //   },
   // });
 
-  let vGesture = new VGesture()
+  let vGesture = new VGesture({ disableHelper: false })
 
 
   await vGesture.initialize();
-  const clickGesturePlugin = new ClickGesturePlugin({
-  })
+  const clickGesturePlugin = new ClickGesturePlugin()
   vGesture.register(clickGesturePlugin)
   await vGesture.startDetection()
   // vGesture.endDetection()
