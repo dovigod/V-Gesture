@@ -42,7 +42,8 @@
   "scripts": {
     "dev": "vite --host=0.0.0.0 --port=3000 ",
     "build": "rollup -c",
-    "release": "node ./release.mjs"
+    "release": "node ./release.mjs",
+    "doc": "typedoc"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.8",
@@ -54,6 +55,7 @@
     "rollup": "^4.18.0",
     "rollup-plugin-dts": "^6.1.1",
     "standard-version": "^9.5.0",
+    "typedoc": "^0.26.5",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vite-plugin-dts": "^3.9.1",

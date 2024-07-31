@@ -2,6 +2,10 @@ import { ClickGesture, ClickGestureConfig } from '../Gestures/ClickGesture';
 // import { VGesture } from '../VGesture';
 import { AbstractGesturePlugin } from './Plugin';
 
+
+/**
+ * An `ClickGesturePlugin` is a built-in gesture which gives `VGesture`ability to recognize "pinching" (with left index & thumb) gesture
+ */
 export class ClickGesturePlugin implements AbstractGesturePlugin {
 
   gesture: ClickGesture;

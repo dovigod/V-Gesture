@@ -7,14 +7,23 @@ import fastdomPromiseExtension from 'fastdom/extensions/fastdom-promised'
 import { traverse } from '../../utils/dom/traverse';
 
 const fastdom = Fastdom.extend(fastdomPromiseExtension);
+
+
+
+
 export class DataDomain {
   private _originalData: ElementBoundary[];
+  /** @ignore */
   size: number;
+  /** @ignore */
   dimension: number;
   private _searchTree: KDTree | null = null;
+
+  /** @ignore */
   baseCoord = [document.documentElement.scrollLeft, document.documentElement.scrollTop];
 
   // for better DX purpose
+  /** @ignore */
   [Symbol.iterator]() {
     let index = -1;
     const data = this._originalData;
@@ -23,6 +32,7 @@ export class DataDomain {
     };
   };
 
+  /** @ignore */
   constructor(data: ElementBoundary[], dimension = 2) {
     if (dimension > MAXIMUM_SUPPORTED_DIMENSION) {
       throw new VGestureError(ERROR_TYPE.VALIDATION, 'DataDomain.constructor', 'Unable to construct DataDomain. Unsupported Dimension');
@@ -32,7 +42,7 @@ export class DataDomain {
     this.size = this._originalData.length;
   }
 
-
+  /** @ignore */
   async update() {
     const PREFIX = 'vgesturable'
     const elemBoundaries: ElementBoundary[] = []
@@ -74,13 +84,19 @@ export class DataDomain {
   }
 
 
+
+  /**
+   * 
+   * searches nearest `vgesturable` element by given pivot point.
+   * 
+   */
   searchClosest(pivot: Vector2D | Vector3D) {
     const scrollOffset = [document.scrollingElement?.scrollLeft || 0, document.scrollingElement?.scrollTop || 0, 0];
     const positionOffset = [this.baseCoord[0] - scrollOffset[0], this.baseCoord[1] - scrollOffset[1]];
     this._createSearchTree(positionOffset);
     const searchTree = this._searchTree;
     if (!searchTree || !(searchTree instanceof KDTree)) {
-      return;
+      return null
     }
 
     const closest = searchTree.searchClosest(pivot)
@@ -89,6 +105,7 @@ export class DataDomain {
   }
 
   /** take a snapshot of original 'data' and create searchTree filled with valid data sets(which is actual candidates of target element)  */
+  /** @ignore */
   private _createSearchTree(offsetFactor: number[]) {
 
     let validData = this._originalData.filter((elemBoundary: ElementBoundary) => {

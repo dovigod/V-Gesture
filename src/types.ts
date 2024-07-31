@@ -12,6 +12,8 @@ export type Boundary2D = [number, number, number, number]
 export type Boundary3D = [number, number, number, number, number, number];
 // export type Point<Dimension, T extends Number[] = []> = Dimension extends T['length'] ? T : Point<Dimension, [...T, Number]>
 
+export type VectorLike2D = { x: number, y: number }
+
 export type Point = (Vector2D | Vector3D);
 export type Boundary = (Boundary2D | Boundary3D)
 export interface ElementBoundary {
