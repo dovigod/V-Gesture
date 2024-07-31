@@ -1,7 +1,7 @@
 {
   "name": "@dvgs/vgesture",
   "private": false,
-  "version": "1.1.5",
+  "version": "1.1.6",
   "author": "dovigod",
   "description": "Typescript library which gives ability to interact with DOM elements with hand gestures via webcam.",
   "type": "module",

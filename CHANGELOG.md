@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.6](https://github.com/dovigod/V-Gesture/compare/v1.1.5...v1.1.6) (2024-07-31)
+
+
+### Feature Improvements
+
+* param 'hands' of determinator will now have handness base on user position ([#48](https://github.com/dovigod/V-Gesture/issues/48)) ([c8fa5fc](https://github.com/dovigod/V-Gesture/commit/c8fa5fc8ec47c692aacabec7bd50afdcaf3ff454))
+* renamed property names ([#47](https://github.com/dovigod/V-Gesture/issues/47)) ([43cc379](https://github.com/dovigod/V-Gesture/commit/43cc37927869e57476f8039c4760c0d5f4c7cd54))
+* VGesture now listens cssom changes ([#49](https://github.com/dovigod/V-Gesture/issues/49)) ([3086985](https://github.com/dovigod/V-Gesture/commit/3086985875f485bb91c35dc4d4216037c35d361a))
+
 ### [1.1.5](https://github.com/dovigod/V-Gesture/compare/v1.1.4...v1.1.5) (2024-05-30)
 
 
