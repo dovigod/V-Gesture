@@ -21,8 +21,6 @@ import { debounce } from './utils/debounce';
 // strictly prevents direct call for private method
 const $$driverKey = Symbol('driverKey');
 
-
-
 export class VGesture {
 
   /**@ignore */
@@ -132,7 +130,7 @@ export class VGesture {
    * e.g) language change for global website, responsive website etc..
    */
   async flush() {
-    this.gestureTargetCollection.update();
+    this.gestureTargetCollection?.update();
   }
 
 
@@ -163,19 +161,21 @@ export class VGesture {
    * In order to re-start detection, you must re-instantiate.
    */
   endDetection() {
+
+    // staled session, nothing to do with.
     if (this.sessionState === SESSION_STATE.FINISHED) {
-      throw new VGestureError(ERROR_TYPE.VALIDATION, 'VGesture.stopDetection', 'Validation Error: Staled session')
+      return;
     }
     this.sessionState = SESSION_STATE.FINISHED
     if (this.frameId) {
       cancelAnimationFrame(this.frameId);
     }
-    this.camera!.close();
-    this.stage!.disconnect()
-    this.gestureManager.disposeAll();
+    this.camera?.close();
+    this.stage?.disconnect()
+    this.gestureManager?.disposeAll();
     this._cleanStartedElems();
-    this.domObserver.disconnect();
-    this.cssomObserver.disconnect();
+    this.domObserver?.disconnect();
+    this.cssomObserver?.disconnect();
     this.initialized = false;
   }
 
