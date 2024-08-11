@@ -56,9 +56,10 @@ vGesture.register(new ClickGesturePlugin())
 vGesture.startDetection()
 ```
 
-### Documentation
 
-[Documentation](https://dovigod.github.io/V-Gesture/) created by _[Typedocs](https://typedoc.org/)_
+## Documentation
+
+[Docs](https://dovigod.github.io/V-Gesture/) created by _[Typedocs](https://typedoc.org/)_
 
 ## Creating gesture
 
