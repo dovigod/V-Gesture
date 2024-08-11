@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [1.2.3](https://github.com/dovigod/V-Gesture/compare/v1.2.2...v1.2.3) (2024-08-11)
 
+
+### Bug Fixes
+
+* Enable event bubbling for frameworks which use there own synthetic events. ([[#50](https://github.com/dovigod/V-Gesture/pull/50))
+
 ### [1.2.2](https://github.com/dovigod/V-Gesture/compare/v1.2.1...v1.2.2) (2024-07-31)
 
 ### [1.2.1](https://github.com/dovigod/V-Gesture/compare/v1.1.6...v1.2.1) (2024-07-31)
