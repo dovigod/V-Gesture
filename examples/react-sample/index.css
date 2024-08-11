@@ -1,0 +1,17 @@
+.radix-themes {
+  --my-brand-color: #ffffff;
+}
+.transition {
+  transition: all 0.3s ease;
+}
+
+.box {
+  filter: saturate(0.5) !important;
+}
+.clicked {
+  filter: saturate(1) !important;
+}
+.clicked-t {
+  transform-origin: center center;
+  transform: scale(1.2);
+}
