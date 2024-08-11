@@ -9,9 +9,8 @@
 [//]: <> (end placeholder for auto-badger)
 Typescript library which gives ability to interact with DOM elements with hand gestures via webcam.
 
-**_Note:_** This project isn't well tested for production, and requires major browser versions to run. So I highly recommend not to use it on production.
+Check out **[live demo](https://v-gesture-demo.vercel.app/)** now!
 
-https://github.com/dovigod/V-Gesture/assets/30416914/05e9e1f6-ccc5-47f5-9fab-afaab3bb775d
 
 ## Installation
 
