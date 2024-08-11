@@ -78,7 +78,7 @@ export class ClickGesture implements AbstractGesture {
     }
 
     const pivot = [e.triggerPoint.x, e.triggerPoint.y] as Vector2D
-    const closestNode = dataDomain.searchClosest(pivot)
+    const closestNode = dataDomain.searchClosest(pivot);
 
     // current event is held inner boundary of closestNode
     if (closestNode) {
@@ -90,7 +90,9 @@ export class ClickGesture implements AbstractGesture {
         const nodeId = closestNode.id;
         if (nodeId) {
           const node = document.getElementById(nodeId);
-          node?.dispatchEvent(new Event('click'));
+
+          // For frameworks which uses synthetic events to trigger events
+          node?.dispatchEvent(new Event('click', { bubbles: true }));
         }
       }
     }
