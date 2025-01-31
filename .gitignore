@@ -28,5 +28,5 @@ build
 .turbo
 build
 engine/target
-**/engine/target/
-**/engine/pkg/
+**/engine/target
+**/engine/pkg
