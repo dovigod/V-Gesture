@@ -1,0 +1,14 @@
+[package]
+name = "vgesture-engine"
+version = "0.0.0"
+authors = ["Dovigod <dovimccalister@gmail.com>"]
+description = "Rust based gesture handler engine"
+license = "MIT/Apache-2.0"
+repository = "https://github.com/dovigod/V-Gesture"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"

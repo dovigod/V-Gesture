@@ -1,0 +1,38 @@
+{
+  "name": "vgesture-engine",
+  "type": "module",
+  "collaborators": [
+    "Dovigod <dovimccalister@gmail.com>"
+  ],
+  "description": "Rust based gesture handler engine",
+  "version": "0.0.0",
+  "license": "MIT/Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dovigod/V-Gesture"
+  },
+  "exports": {
+    ".": {
+      "import": "./pkg/vgesture_engine.js"
+    },
+    "./wasm": {
+      "import": "./pkg/vgesture_engine_bg.wasm"
+    },
+    "./raw": {
+      "import": "./pkg"
+    }
+  },
+  "files": [
+    "vgesture_engine_bg.wasm",
+    "vgesture_engine.js",
+    "vgesture_engine.d.ts"
+  ],
+  "scripts": {
+    "build": "wasm-pack build --target web"
+  },
+  "main": "./pkg/vgesture_engine.js",
+  "types": "./pkg/vgesture_engine.d.ts",
+  "sideEffects": [
+    "./pkg/snippets/*"
+  ]
+}

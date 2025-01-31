@@ -25,3 +25,6 @@ build
 *.sw?
 
 .env
+.turbo
+build
+engine/target

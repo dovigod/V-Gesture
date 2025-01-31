@@ -1,0 +1,1 @@
+/Users/mccalister/Desktop/private_workspace/V-Gesture/packages/engine/target/wasm32-unknown-unknown/release/vgesture_engine.wasm: /Users/mccalister/Desktop/private_workspace/V-Gesture/packages/engine/src/lib.rs

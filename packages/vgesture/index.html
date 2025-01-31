@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1.0, user-scalable=no"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #pin {
+        z-index: 999;
+      }
+
+      #main {
+        position: relative;
+        margin: 0;
+        /* min-height: 300vh; */
+      }
+      #canvas-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 99999;
+      }
+
+      .btn {
+        padding: 10px;
+        background-color: green;
+        position: relative;
+      }
+
+      #btn0 {
+        background-color: green;
+        top: 100px;
+        left: 652px;
+      }
+      #btn1 {
+        background-color: purple;
+        top: 400px;
+        left: 542px;
+      }
+      #btn2 {
+        background-color: pink;
+        top: 320px;
+        left: 702px;
+      }
+      #btn3 {
+        background-color: red;
+        top: 900px;
+        left: 300px;
+      }
+      #btn4 {
+        background-color: yellow;
+        top: 1200px;
+        left: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stats"></div>
+    <div id="main"></div>
+    <div class="container">
+    <button id="btn0" class="btn" vgesturable onclick="alert('clicked! 0')">
+          Click ME!!!
+        </button>
+    <div>
+    <button
+            id="btn1"
+            class="btn"
+            vgesturable
+            onclick="alert('clicked! 1')"
+          >
+            Click ME!!! 1
+          </button>
+          <button id="toggle">123123123</button>
+        </div>
+    <button id="btn2" class="btn" vgesturable >
+      <div > adninergionreiognreiog inor</div>
+          Click ME!!! 2
+        </button>
+    </div>
+    </div>
+    <button id="btn3" class="btn" vgesturable onclick="alert('clicked!')">
+      Scroll and Click ME!!! 3
+    </button>
+
+    <button id="btn4" class="btn" vgesturable onclick="alert('clicked!')">
+      Scroll and Click ME!!! 4
+    </button>
+  </body>
+  <script type="module" src="./src/main.ts"></script>
+</html>
