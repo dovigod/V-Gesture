@@ -28,3 +28,5 @@ build
 .turbo
 build
 engine/target
+**/engine/target/
+**/engine/pkg/
